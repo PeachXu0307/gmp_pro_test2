@@ -288,32 +288,32 @@ extern "C"
 /**
  * @brief Load/output current ADC sensing sensitivity provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IOUT_SENSITIVITY GMP_LVFB_CURRENT_SENSITIVITY
+#define CTRL_FSBB_IOUT_SENSITIVITY (0.148f)
 
 /**
  * @brief Load/output current ADC bias voltage provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IOUT_BIAS GMP_LVFB_CURRENT_BIAS_V
+#define CTRL_FSBB_IOUT_BIAS (1.636f)
 
 /**
  * @brief Input current ADC sensing sensitivity provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IIN_SENSITIVITY GMP_LVFB_CURRENT_SENSITIVITY
+#define CTRL_FSBB_IIN_SENSITIVITY (0.148f)
 
 /**
  * @brief Input current ADC bias voltage provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IIN_BIAS GMP_LVFB_CURRENT_BIAS_V
+#define CTRL_FSBB_IIN_BIAS (1.636f)
 
 /**
  * @brief Inductor current ADC sensing sensitivity provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IL_SENSITIVITY GMP_LVFB_CURRENT_SENSITIVITY
+#define CTRL_FSBB_IL_SENSITIVITY (0.148f)
 
 /**
  * @brief Inductor current ADC bias voltage provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IL_BIAS GMP_LVFB_CURRENT_BIAS_V
+#define CTRL_FSBB_IL_BIAS (1.636f)
 
 /**
  * @brief 
