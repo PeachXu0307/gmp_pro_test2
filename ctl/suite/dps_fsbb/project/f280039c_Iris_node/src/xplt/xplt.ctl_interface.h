@@ -15,6 +15,22 @@ extern "C"
 
 void GPIO_WritePin(uint16_t gpioNumber, uint16_t outVal);
 
+#ifndef FSBB_VIN_RESULT_BASE
+#define FSBB_VIN_RESULT_BASE ADC_CH3_RESULT_BASE
+#endif
+#ifndef FSBB_VOUT_RESULT_BASE
+#define FSBB_VOUT_RESULT_BASE ADC_CH5_RESULT_BASE
+#endif
+#ifndef FSBB_IL_RESULT_BASE
+#define FSBB_IL_RESULT_BASE ADC_CH2_RESULT_BASE
+#endif
+#ifndef FSBB_IIN_RESULT_BASE
+#define FSBB_IIN_RESULT_BASE ADC_CH4_RESULT_BASE
+#endif
+#ifndef FSBB_IOUT_RESULT_BASE
+#define FSBB_IOUT_RESULT_BASE ADC_CH6_RESULT_BASE
+#endif
+
 GMP_STATIC_INLINE uint16_t ctl_fsbb_active_faults(void)
 {
     uint16_t faults = FSBB_FAULT_NONE;
@@ -43,15 +59,15 @@ GMP_STATIC_INLINE uint16_t ctl_fsbb_active_faults(void)
 GMP_STATIC_INLINE void ctl_input_callback(void)
 {
 #if defined FSBB_ENABLE_VIN_SAMPLE
-    ctl_step_adc_channel(&adc_v_in, ADC_readResult(FSBB_VIN_ADC_BASE, FSBB_VIN));
+    ctl_step_adc_channel(&adc_v_in, ADC_readResult(FSBB_VIN_RESULT_BASE, FSBB_VIN));
 #else
     adc_v_in.control_port.value = float2ctrl(FSBB_INPUT_VOLTAGE_NOMINAL / CTRL_VOLTAGE_BASE);
 #endif
-    ctl_step_adc_channel(&adc_v_out, ADC_readResult(FSBB_VOUT_ADC_BASE, FSBB_VOUT));
-    ctl_step_adc_channel(&adc_i_L, ADC_readResult(FSBB_IL_ADC_BASE, FSBB_IL));
-    ctl_step_adc_channel(&adc_i_in, ADC_readResult(FSBB_IIN_ADC_BASE, FSBB_IIN));
+    ctl_step_adc_channel(&adc_v_out, ADC_readResult(FSBB_VOUT_RESULT_BASE, FSBB_VOUT));
+    ctl_step_adc_channel(&adc_i_L, ADC_readResult(FSBB_IL_RESULT_BASE, FSBB_IL));
+    ctl_step_adc_channel(&adc_i_in, ADC_readResult(FSBB_IIN_RESULT_BASE, FSBB_IIN));
 #if defined FSBB_ENABLE_IOUT_SAMPLE
-    ctl_step_adc_channel(&adc_i_load, ADC_readResult(FSBB_IOUT_ADC_BASE, FSBB_IOUT));
+    ctl_step_adc_channel(&adc_i_load, ADC_readResult(FSBB_IOUT_RESULT_BASE, FSBB_IOUT));
 #else
     adc_i_load.control_port.value = float2ctrl(0.0f);
 #endif

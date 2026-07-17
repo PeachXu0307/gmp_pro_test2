@@ -37,7 +37,7 @@ extern "C"
 /**
  * @brief Enable ADC calibration before normal control starts.
  */
-#define SPECIFY_ENABLE_ADC_CALIBRATE
+// #define SPECIFY_ENABLE_ADC_CALIBRATE
 
 /**
  * @brief Enable PIL simulation mode. This mode disables direct controller output for safe communication-based simulation.
@@ -268,22 +268,22 @@ extern "C"
 /**
  * @brief Input voltage ADC sensing sensitivity provided by the LVFB voltage sensor path.
  */
-#define CTRL_FSBB_VIN_SENSITIVITY GMP_LVFB_VOLTAGE_SENSITIVITY
+#define CTRL_FSBB_VIN_SENSITIVITY (0.12f / 9.0f)
 
 /**
  * @brief Input voltage ADC bias voltage provided by the LVFB voltage sensor path.
  */
-#define CTRL_FSBB_VIN_BIAS GMP_LVFB_VOLTAGE_BIAS_V
+#define CTRL_FSBB_VIN_BIAS (1.58f)
 
 /**
  * @brief Output voltage ADC sensing sensitivity provided by the LVFB voltage sensor path.
  */
-#define CTRL_FSBB_VOUT_SENSITIVITY GMP_LVFB_VOLTAGE_SENSITIVITY
+#define CTRL_FSBB_VOUT_SENSITIVITY (0.02705f)
 
 /**
  * @brief Output voltage ADC bias voltage provided by the LVFB voltage sensor path.
  */
-#define CTRL_FSBB_VOUT_BIAS GMP_LVFB_VOLTAGE_BIAS_V
+#define CTRL_FSBB_VOUT_BIAS (0.0f)
 
 /**
  * @brief Load/output current ADC sensing sensitivity provided by the LVFB current sensor path.
