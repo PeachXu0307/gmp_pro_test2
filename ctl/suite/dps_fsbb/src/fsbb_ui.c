@@ -56,6 +56,7 @@ static int32_t fsbb_ui_edit_value = FSBB_UI_DEFAULT_VOLTAGE_CV;
 static fsbb_ui_param_state_t fsbb_ui_state = FSBB_UI_PARAM_LOCKED;
 static uint8_t fsbb_ui_cursor = 0U;
 static uint8_t fsbb_ui_initialized = 0U;
+static uint8_t fsbb_ui_enable_after_fault_reset = 0U;
 
 static int32_t fsbb_ui_clamp_i32(int32_t value, int32_t min_value, int32_t max_value)
 {
@@ -317,6 +318,41 @@ static void fsbb_ui_switch_mode(void)
     fsbb_ui_update_leds();
 }
 
+static void fsbb_ui_request_output_enable(void)
+{
+    if (g_fsbb_faults == FSBB_FAULT_NONE)
+    {
+        fsbb_ui_enable_after_fault_reset = 0U;
+        cia402_send_cmd(&cia402_sm, CIA402_CMD_ENABLE_OPERATION);
+        return;
+    }
+
+    if (ctl_fsbb_active_faults() == FSBB_FAULT_NONE)
+    {
+        fsbb_ui_enable_after_fault_reset = 1U;
+        cia402_send_cmd(&cia402_sm, CIA402_CMD_FAULT_RESET);
+    }
+}
+
+static void fsbb_ui_service_pending_enable(void)
+{
+    if (!fsbb_ui_enable_after_fault_reset)
+        return;
+
+    if (g_fsbb_faults != FSBB_FAULT_NONE)
+    {
+        if (ctl_fsbb_active_faults() != FSBB_FAULT_NONE)
+            fsbb_ui_enable_after_fault_reset = 0U;
+        return;
+    }
+
+    if (cia402_sm.current_state != CIA402_SM_FAULT)
+    {
+        fsbb_ui_enable_after_fault_reset = 0U;
+        cia402_send_cmd(&cia402_sm, CIA402_CMD_ENABLE_OPERATION);
+    }
+}
+
 static void fsbb_ui_set_display_ram(ht16k33_dev_t* dev, const uint16_t segs[FSBB_UI_DIGIT_COUNT])
 {
     uint8_t i;
@@ -437,6 +473,7 @@ void fsbb_ui_init(void)
     fsbb_ui_edit_value = fsbb_ui_vset_cv;
     fsbb_ui_cursor = 0U;
     fsbb_ui_state = FSBB_UI_PARAM_LOCKED;
+    fsbb_ui_enable_after_fault_reset = 0U;
     fsbb_ui_update_leds();
     fsbb_ui_initialized = 1U;
 }
@@ -459,6 +496,7 @@ gmp_task_status_t tsk_fsbb_ui_key(gmp_task_t* tsk)
     }
 
     pressed_key = fsbb_ui_filter_key_event(key_id);
+    fsbb_ui_service_pending_enable();
 
     digit = fsbb_ui_digit_from_key(pressed_key);
 
@@ -473,9 +511,12 @@ gmp_task_status_t tsk_fsbb_ui_key(gmp_task_t* tsk)
 
     case FSBB_UI_KEY_ENABLE:
         if (g_fsbb_output_enabled)
+        {
+            fsbb_ui_enable_after_fault_reset = 0U;
             cia402_send_cmd(&cia402_sm, CIA402_CMD_DISABLE_VOLTAGE);
+        }
         else
-            cia402_send_cmd(&cia402_sm, CIA402_CMD_ENABLE_OPERATION);
+            fsbb_ui_request_output_enable();
         break;
 
     case FSBB_UI_KEY_MODE:

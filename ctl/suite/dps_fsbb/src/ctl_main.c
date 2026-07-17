@@ -8,6 +8,7 @@
 #include <gmp_core.h>
 
 #include "ctl_main.h"
+#include <xplt.ctl_interface.h>
 
 //=================================================================================================
 // global controller variables
@@ -228,6 +229,16 @@ fast_gt ctl_exec_adc_calibration(void)
 void clear_all_controllers(void)
 {
     ctl_clear_dcdc_core(&dcdc_core);
+}
+
+fast_gt ctl_fault_recover_routine(void)
+{
+    if (ctl_fsbb_active_faults() != FSBB_FAULT_NONE)
+        return 0;
+
+    g_fsbb_faults = FSBB_FAULT_NONE;
+    clear_all_controllers();
+    return 1;
 }
 
 void ctl_enable_pwm(void)
