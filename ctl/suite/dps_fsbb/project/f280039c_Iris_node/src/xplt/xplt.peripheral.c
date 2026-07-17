@@ -13,6 +13,7 @@
 #include "ctl_main.h"
 #include <xplt.peripheral.h>
 #include <ctl/component/dsa/dsa_trigger.h>
+#include <core/dev/display/ht16k33.h>
 
 //=================================================================================================
 // Definitions of Peripheral
@@ -27,6 +28,28 @@
 
 // GPIO port
 extern gpio_halt user_led;
+iic_halt iic_bus;
+ht16k33_dev_t ht16k33;
+
+#define FSBB_UI_LED_MODE_GPIO         61U
+#define FSBB_UI_LED_OUTPUT_GPIO       59U
+#define FSBB_UI_LED_ACTIVE_LEVEL      0U
+#define FSBB_UI_LED_INACTIVE_LEVEL    1U
+
+static void initI2C(void)
+{
+    I2C_disableModule(I2CA_BASE);
+
+    I2C_initController(I2CA_BASE, DEVICE_SYSCLK_FREQ, 400000, I2C_DUTYCYCLE_33);
+    I2C_setBitCount(I2CA_BASE, I2C_BITCOUNT_8);
+    I2C_setTargetAddress(I2CA_BASE, HT16K33_DEFAULT_DEV_ADDR);
+    I2C_setEmulationMode(I2CA_BASE, I2C_EMULATION_FREE_RUN);
+
+    I2C_enableInterrupt(I2CA_BASE, I2C_INT_STOP_CONDITION | I2C_INT_REG_ACCESS_RDY);
+    I2C_enableFIFO(I2CA_BASE);
+    I2C_clearInterruptStatus(I2CA_BASE, I2C_INT_RXFF | I2C_INT_TXFF);
+    I2C_enableModule(I2CA_BASE);
+}
 
 //=================================================================================================
 // Peripheral Setup Function
@@ -42,6 +65,18 @@ void setup_peripheral(void)
     asm(" RPT #255 || NOP");
 
     user_led = SYSTEM_LED;
+
+    GPIO_setPadConfig(IRIS_IIC_I2CSDA_GPIO, GPIO_PIN_TYPE_PULLUP);
+    GPIO_setQualificationMode(IRIS_IIC_I2CSDA_GPIO, GPIO_QUAL_ASYNC);
+    GPIO_setPadConfig(IRIS_IIC_I2CSCL_GPIO, GPIO_PIN_TYPE_PULLUP);
+    GPIO_setQualificationMode(IRIS_IIC_I2CSCL_GPIO, GPIO_QUAL_ASYNC);
+    initI2C();
+    iic_bus = I2CA_BASE;
+
+    GPIO_setDirectionMode(FSBB_UI_LED_MODE_GPIO, GPIO_DIR_MODE_OUT);
+    GPIO_setDirectionMode(FSBB_UI_LED_OUTPUT_GPIO, GPIO_DIR_MODE_OUT);
+    GPIO_WritePin(FSBB_UI_LED_MODE_GPIO, FSBB_UI_LED_ACTIVE_LEVEL);
+    GPIO_WritePin(FSBB_UI_LED_OUTPUT_GPIO, FSBB_UI_LED_INACTIVE_LEVEL);
 
     // ---------------------------------------------------------
     // 1. Initialize Input Voltage ADC Channel (V_in)
@@ -80,7 +115,19 @@ void setup_peripheral(void)
         12, 24);
 
     // ---------------------------------------------------------
-    // 4. Initialize Load Current ADC Channel (I_load) - For Feedforward
+    // 4. Initialize Input Current ADC Channel (I_in)
+    // ---------------------------------------------------------
+    ctl_init_adc_channel(
+        &adc_i_in,
+        // ADC gain calculation
+        ctl_gain_calc_generic(CTRL_ADC_VOLTAGE_REF, CTRL_FSBB_IIN_SENSITIVITY, CTRL_CURRENT_BASE),
+        // ADC bias calculation
+        ctl_bias_calc_via_Vref_Vbias(CTRL_ADC_VOLTAGE_REF, CTRL_FSBB_IIN_BIAS),
+        // ADC resolution, IQN
+        12, 24);
+
+    // ---------------------------------------------------------
+    // 5. Initialize Load Current ADC Channel (I_load) - For Feedforward
     // ---------------------------------------------------------
     ctl_init_adc_channel(
         &adc_i_load,

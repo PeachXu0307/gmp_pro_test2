@@ -22,6 +22,7 @@ ctl_dcdc_core_t dcdc_core;
 // Input channel
 adc_channel_t adc_v_in;
 adc_channel_t adc_v_out;
+adc_channel_t adc_i_in;
 adc_channel_t adc_i_L;
 adc_channel_t adc_i_load;
 
@@ -34,10 +35,11 @@ volatile fast_gt flag_enable_adc_calibrator = 0;
 volatile fast_gt index_adc_calibrator = 0;
 volatile uint16_t g_fsbb_faults = FSBB_FAULT_NONE;
 volatile fast_gt g_fsbb_output_enabled = 0;
+volatile fsbb_control_mode_t g_fsbb_control_mode = FSBB_CONTROL_MODE_CV;
 
 // User commands
-ctrl_gt g_v_out_ref_user = float2ctrl(FSBB_DEFAULT_OUTPUT_VOLTAGE / CTRL_VOLTAGE_BASE);
-ctrl_gt g_i_limit_user = float2ctrl(FSBB_DEFAULT_CURRENT_LIMIT / CTRL_CURRENT_BASE);
+ctrl_gt g_v_out_ref_user = float2ctrl(10.0f / CTRL_VOLTAGE_BASE);
+ctrl_gt g_i_limit_user = float2ctrl(1.0f / CTRL_CURRENT_BASE);
 ctrl_gt v_req = float2ctrl(0.0f);
 
 //=================================================================================================

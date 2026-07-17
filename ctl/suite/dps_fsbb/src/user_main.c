@@ -15,6 +15,7 @@
 #include <core/dev/mem_presp.h>
 #include <core/dev/pil_core.h>
 #include <core/dev/tunable.h>
+#include <oled_driver.h>
 
 //=================================================================================================
 // Datalink protocol online Debug module
@@ -39,6 +40,7 @@ const gmp_param_item_t dict_m1[] = {
     // Feedback and controller state
     {&adc_v_in.control_port.value, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
     {&adc_v_out.control_port.value, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
+    {&adc_i_in.control_port.value, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
     {&adc_i_L.control_port.value, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
 #if defined FSBB_ENABLE_IOUT_SAMPLE
     {&adc_i_load.control_port.value, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
@@ -193,8 +195,10 @@ gmp_task_status_t tsk_startup(gmp_task_t* tsk);
 // All tasks must be non blocking tasks
 gmp_task_t tasks[] = {
     // name,          task,                period(ms),  init_phase, is_enabled, pParam
-    {"blink_led", tsk_blink, 1000, 0, 1, NULL},    {"dl_online", tsk_dl_debug_device, 2, 0, 1, NULL},
+    {"blink_led", tsk_blink, 1000, 0, 0, NULL},    {"dl_online", tsk_dl_debug_device, 2, 0, 1, NULL},
     {"monitor_data", tsk_monitor, 5, 0, 1, NULL},  // 5ms -> 200Hz refresh rate
+    {"fsbb_ui_key", tsk_fsbb_ui_key, 50, 10, 0, (void*)&ht16k33},
+    {"fsbb_ui_display", tsk_fsbb_ui_display, 100, 20, 0, (void*)&ht16k33},
     {"ctl_mainloop", tsk_ctl_main, 1, 0, 1, NULL}, // 1ms state machine tick
     {"slow_protect", tsk_protect, 10, 0, 1, NULL}, // 10ms thermal/RMS protection
     {"startup", tsk_startup, 500, 0, 1, NULL},
@@ -238,7 +242,16 @@ gmp_task_status_t tsk_startup(gmp_task_t* tsk)
 {
     GMP_UNUSED_VAR(tsk);
 
-    // Add necessary init code here.
+    ht16k33_init_t ht16k33_init_struct = {.brightness = 15, .blink_rate = 0, .int_enable = 0, .int_act_high = 0};
+    ec_gt ec = ht16k33_init(&ht16k33, iic_bus, HT16K33_DEFAULT_DEV_ADDR, &ht16k33_init_struct);
+
+    if (ec == GMP_EC_OK)
+    {
+        fsbb_ui_init();
+        oled_init();
+        sched.task_list[3]->is_enabled = 1;
+        sched.task_list[4]->is_enabled = 1;
+    }
 
     // startup process is complete, close this task
     tsk->is_enabled = 0;

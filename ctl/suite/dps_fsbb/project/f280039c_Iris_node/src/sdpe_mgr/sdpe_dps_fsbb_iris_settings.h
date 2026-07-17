@@ -62,12 +62,12 @@ extern "C"
 /**
  * @brief Enable output/load current sampling path.
  */
-// #define FSBB_ENABLE_IOUT_SAMPLE
+#define FSBB_ENABLE_IOUT_SAMPLE
 
 /**
  * @brief Enable input voltage sampling path.
  */
-// #define FSBB_ENABLE_VIN_SAMPLE
+#define FSBB_ENABLE_VIN_SAMPLE
 
 //=================================================================================================
 /**
@@ -129,37 +129,37 @@ extern "C"
  * @brief Input voltage ADC result register base.
  *        Options: ADC_CH1_ADC_BASE, ADC_CH2_ADC_BASE, ADC_CH3_ADC_BASE, ADC_CH4_ADC_BASE, ADC_CH5_ADC_BASE, ADC_CH6_ADC_BASE, ADC_CH7_ADC_BASE, ADC_CH8_ADC_BASE, ADC_CH9_ADC_BASE, ADC_CH10_ADC_BASE, ADC_CH11_ADC_BASE, ADC_CH12_ADC_BASE
  */
-#define FSBB_VIN_ADC_BASE ADC_CH1_ADC_BASE
+#define FSBB_VIN_ADC_BASE ADC_CH3_ADC_BASE
 
 /**
  * @brief Input voltage ADC channel index.
  *        Options: ADC_CH1, ADC_CH2, ADC_CH3, ADC_CH4, ADC_CH5, ADC_CH6, ADC_CH7, ADC_CH8, ADC_CH9, ADC_CH10, ADC_CH11, ADC_CH12
  */
-#define FSBB_VIN ADC_CH1
+#define FSBB_VIN ADC_CH3
 
 /**
  * @brief Output voltage ADC result register base.
  *        Options: ADC_CH1_ADC_BASE, ADC_CH2_ADC_BASE, ADC_CH3_ADC_BASE, ADC_CH4_ADC_BASE, ADC_CH5_ADC_BASE, ADC_CH6_ADC_BASE, ADC_CH7_ADC_BASE, ADC_CH8_ADC_BASE, ADC_CH9_ADC_BASE, ADC_CH10_ADC_BASE, ADC_CH11_ADC_BASE, ADC_CH12_ADC_BASE
  */
-#define FSBB_VOUT_ADC_BASE ADC_CH2_ADC_BASE
+#define FSBB_VOUT_ADC_BASE ADC_CH5_ADC_BASE
 
 /**
  * @brief Output voltage ADC channel index.
  *        Options: ADC_CH1, ADC_CH2, ADC_CH3, ADC_CH4, ADC_CH5, ADC_CH6, ADC_CH7, ADC_CH8, ADC_CH9, ADC_CH10, ADC_CH11, ADC_CH12
  */
-#define FSBB_VOUT ADC_CH2
+#define FSBB_VOUT ADC_CH5
 
 /**
  * @brief Inductor current ADC result register base.
  *        Options: ADC_CH1_ADC_BASE, ADC_CH2_ADC_BASE, ADC_CH3_ADC_BASE, ADC_CH4_ADC_BASE, ADC_CH5_ADC_BASE, ADC_CH6_ADC_BASE, ADC_CH7_ADC_BASE, ADC_CH8_ADC_BASE, ADC_CH9_ADC_BASE, ADC_CH10_ADC_BASE, ADC_CH11_ADC_BASE, ADC_CH12_ADC_BASE
  */
-#define FSBB_IL_ADC_BASE ADC_CH3_ADC_BASE
+#define FSBB_IL_ADC_BASE ADC_CH2_ADC_BASE
 
 /**
  * @brief Inductor current ADC channel index.
  *        Options: ADC_CH1, ADC_CH2, ADC_CH3, ADC_CH4, ADC_CH5, ADC_CH6, ADC_CH7, ADC_CH8, ADC_CH9, ADC_CH10, ADC_CH11, ADC_CH12
  */
-#define FSBB_IL ADC_CH3
+#define FSBB_IL ADC_CH2
 
 /**
  * @brief Input current ADC result register base, available when input-current sampling is enabled.
@@ -177,13 +177,13 @@ extern "C"
  * @brief Output/load current ADC result register base.
  *        Options: ADC_CH1_ADC_BASE, ADC_CH2_ADC_BASE, ADC_CH3_ADC_BASE, ADC_CH4_ADC_BASE, ADC_CH5_ADC_BASE, ADC_CH6_ADC_BASE, ADC_CH7_ADC_BASE, ADC_CH8_ADC_BASE, ADC_CH9_ADC_BASE, ADC_CH10_ADC_BASE, ADC_CH11_ADC_BASE, ADC_CH12_ADC_BASE
  */
-#define FSBB_IOUT_ADC_BASE ADC_CH4_ADC_BASE
+#define FSBB_IOUT_ADC_BASE ADC_CH6_ADC_BASE
 
 /**
  * @brief Output/load current ADC channel index.
  *        Options: ADC_CH1, ADC_CH2, ADC_CH3, ADC_CH4, ADC_CH5, ADC_CH6, ADC_CH7, ADC_CH8, ADC_CH9, ADC_CH10, ADC_CH11, ADC_CH12
  */
-#define FSBB_IOUT ADC_CH4
+#define FSBB_IOUT ADC_CH6
 
 //=================================================================================================
 /**
@@ -294,6 +294,16 @@ extern "C"
  * @brief Load/output current ADC bias voltage provided by the LVFB current sensor path.
  */
 #define CTRL_FSBB_IOUT_BIAS GMP_LVFB_CURRENT_BIAS_V
+
+/**
+ * @brief Input current ADC sensing sensitivity provided by the LVFB current sensor path.
+ */
+#define CTRL_FSBB_IIN_SENSITIVITY GMP_LVFB_CURRENT_SENSITIVITY
+
+/**
+ * @brief Input current ADC bias voltage provided by the LVFB current sensor path.
+ */
+#define CTRL_FSBB_IIN_BIAS GMP_LVFB_CURRENT_BIAS_V
 
 /**
  * @brief Inductor current ADC sensing sensitivity provided by the LVFB current sensor path.

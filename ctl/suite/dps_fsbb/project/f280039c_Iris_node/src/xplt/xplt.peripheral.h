@@ -34,6 +34,7 @@ extern "C"
 
 extern adc_channel_t adc_v_in;
 extern adc_channel_t adc_v_out;
+extern adc_channel_t adc_i_in;
 extern adc_channel_t adc_i_L;
 extern adc_channel_t adc_i_load;
 

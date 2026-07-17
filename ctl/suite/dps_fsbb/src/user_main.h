@@ -9,6 +9,7 @@
 #include <core/dev/at_device.h>
 
 #include <core/pm/function_scheduler.h>
+#include <core/dev/display/ht16k33.h>
 
 #ifndef _FILE_USER_MAIN_H_
 #define _FILE_USER_MAIN_H_
@@ -22,6 +23,8 @@ extern "C"
 // global variables
 
 extern cia402_sm_t cia402_sm;
+extern iic_halt iic_bus;
+extern ht16k33_dev_t ht16k33;
 
 #ifndef SPECIFY_PC_TEST_ENV
 
@@ -44,6 +47,9 @@ void ctl_init(void);
 void ctl_mainloop(void);
 
 gmp_task_status_t tsk_startup(gmp_task_t* tsk);
+gmp_task_status_t tsk_fsbb_ui_key(gmp_task_t* tsk);
+gmp_task_status_t tsk_fsbb_ui_display(gmp_task_t* tsk);
+void fsbb_ui_init(void);
 
 #ifdef __cplusplus
 }

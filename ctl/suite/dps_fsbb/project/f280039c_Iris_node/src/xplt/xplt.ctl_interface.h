@@ -49,6 +49,7 @@ GMP_STATIC_INLINE void ctl_input_callback(void)
 #endif
     ctl_step_adc_channel(&adc_v_out, ADC_readResult(FSBB_VOUT_ADC_BASE, FSBB_VOUT));
     ctl_step_adc_channel(&adc_i_L, ADC_readResult(FSBB_IL_ADC_BASE, FSBB_IL));
+    ctl_step_adc_channel(&adc_i_in, ADC_readResult(FSBB_IIN_ADC_BASE, FSBB_IIN));
 #if defined FSBB_ENABLE_IOUT_SAMPLE
     ctl_step_adc_channel(&adc_i_load, ADC_readResult(FSBB_IOUT_ADC_BASE, FSBB_IOUT));
 #else
@@ -93,7 +94,6 @@ GMP_STATIC_INLINE void ctl_fast_enable_output(void)
     EPWM_clearTripZoneFlag(PHASE_BOOST_BASE, EPWM_TZ_FORCE_EVENT_OST);
     clear_all_controllers();
     GPIO_WritePin(PWM_ENABLE_PORT, 1);
-    GPIO_WritePin(CONTROLLER_LED, 0);
 }
 
 GMP_STATIC_INLINE void ctl_fast_disable_output(void)
@@ -101,7 +101,6 @@ GMP_STATIC_INLINE void ctl_fast_disable_output(void)
     EPWM_forceTripZoneEvent(PHASE_BUCK_BASE, EPWM_TZ_FORCE_EVENT_OST);
     EPWM_forceTripZoneEvent(PHASE_BOOST_BASE, EPWM_TZ_FORCE_EVENT_OST);
     GPIO_WritePin(PWM_ENABLE_PORT, 0);
-    GPIO_WritePin(CONTROLLER_LED, 1);
 }
 
 typedef enum _tag_dcdc_adc_index_items
@@ -109,8 +108,9 @@ typedef enum _tag_dcdc_adc_index_items
     DCDC_ADC_ID_VIN = 0,
     DCDC_ADC_ID_VOUT = 1,
     DCDC_ADC_ID_IL = 2,
-    DCDC_ADC_ID_ILOAD = 3,
-    DCDC_ADC_SENSOR_NUMBER = 4
+    DCDC_ADC_ID_IIN = 3,
+    DCDC_ADC_ID_ILOAD = 4,
+    DCDC_ADC_SENSOR_NUMBER = 5
 } dcdc_adc_index_items;
 
 GMP_STATIC_INLINE void ctl_input_callback_pil(const gmp_sim_rx_buf_t* rx)
@@ -118,6 +118,7 @@ GMP_STATIC_INLINE void ctl_input_callback_pil(const gmp_sim_rx_buf_t* rx)
     ctl_step_adc_channel(&adc_v_in, rx->adc_result[DCDC_ADC_ID_VIN]);
     ctl_step_adc_channel(&adc_v_out, rx->adc_result[DCDC_ADC_ID_VOUT]);
     ctl_step_adc_channel(&adc_i_L, rx->adc_result[DCDC_ADC_ID_IL]);
+    ctl_step_adc_channel(&adc_i_in, rx->adc_result[DCDC_ADC_ID_IIN]);
     ctl_step_adc_channel(&adc_i_load, rx->adc_result[DCDC_ADC_ID_ILOAD]);
 }
 

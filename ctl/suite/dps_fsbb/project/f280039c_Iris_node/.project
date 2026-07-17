@@ -46,9 +46,19 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/user_main.c</locationURI>
 		</link>
 		<link>
+			<name>src/user/fsbb_ui.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/fsbb_ui.c</locationURI>
+		</link>
+		<link>
 			<name>src/user/user_main.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/user_main.h</locationURI>
+		</link>
+		<link>
+			<name>src/user/oled_driver.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/csp/c28x_syscfg/iris_280039c_board/oled_driver/oled_driver.c</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>

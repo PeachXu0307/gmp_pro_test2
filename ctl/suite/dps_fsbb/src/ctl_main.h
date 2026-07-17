@@ -27,6 +27,7 @@ extern ctl_dcdc_core_t dcdc_core;
 
 extern adc_channel_t adc_v_in;
 extern adc_channel_t adc_v_out;
+extern adc_channel_t adc_i_in;
 extern adc_channel_t adc_i_L;
 extern adc_channel_t adc_i_load;
 extern fsbb_modulator_t fsbb_mod;
@@ -38,6 +39,14 @@ extern volatile fast_gt index_adc_calibrator;
 extern ctrl_gt g_v_out_ref_user;
 extern ctrl_gt g_i_limit_user;
 extern ctrl_gt v_req;
+
+typedef enum _tag_fsbb_control_mode
+{
+    FSBB_CONTROL_MODE_CV = 0,
+    FSBB_CONTROL_MODE_CC = 1
+} fsbb_control_mode_t;
+
+extern volatile fsbb_control_mode_t g_fsbb_control_mode;
 
 typedef enum _tag_fsbb_fault
 {
@@ -79,17 +88,15 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
     if (g_fsbb_faults != FSBB_FAULT_NONE)
         return;
 
-#if (BUILD_LEVEL == 1)
-    dcdc_core.mode = CTL_DCDC_MODE_OPENLOOP;
-    dcdc_core.v_target = float2ctrl(FSBB_OPEN_LOOP_VOLTAGE_COMMAND / CTRL_VOLTAGE_BASE);
-    v_req = ctl_step_dcdc_open_loop(&dcdc_core);
-#elif (BUILD_LEVEL == 2)
-    dcdc_core.mode = CTL_DCDC_MODE_CURRENTLOOP;
-    dcdc_core.i_target = ctl_sat(g_i_limit_user,
-                                 float2ctrl(FSBB_OUTPUT_CURRENT_LIM / CTRL_CURRENT_BASE),
-                                 float2ctrl(0.0f));
-    v_req = ctl_step_dcdc_current_loop(&dcdc_core);
-#elif (BUILD_LEVEL == 3)
+    if (g_fsbb_control_mode == FSBB_CONTROL_MODE_CC)
+    {
+        dcdc_core.mode = CTL_DCDC_MODE_CURRENTLOOP;
+        dcdc_core.i_target = ctl_sat(g_i_limit_user,
+                                     float2ctrl(FSBB_OUTPUT_CURRENT_LIM / CTRL_CURRENT_BASE),
+                                     float2ctrl(0.0f));
+        v_req = ctl_step_dcdc_output_current_loop(&dcdc_core);
+    }
+    else
     {
         ctrl_gt current_limit = ctl_sat(g_i_limit_user,
                                         float2ctrl(FSBB_OUTPUT_CURRENT_LIM / CTRL_CURRENT_BASE),
@@ -102,7 +109,6 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
         ctl_set_pid_int_limit(&dcdc_core.voltage_pid, current_limit, float2ctrl(0.0f));
         v_req = ctl_step_dcdc_cascade(&dcdc_core);
     }
-#endif
 
     ctl_step_fsbb_modulator(&fsbb_mod, v_req, adc_v_in.control_port.value);
 }
