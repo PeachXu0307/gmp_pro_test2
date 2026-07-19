@@ -37,6 +37,7 @@
 #define FSBB_UI_LED_INACTIVE_LEVEL   1U
 #define FSBB_UI_KEY_PRESS_COUNT      2U
 #define FSBB_UI_KEY_RELEASE_COUNT    2U
+#define FSBB_UI_MEAS_CHANNELS        5U
 
 typedef enum
 {
@@ -57,6 +58,54 @@ static fsbb_ui_param_state_t fsbb_ui_state = FSBB_UI_PARAM_LOCKED;
 static uint8_t fsbb_ui_cursor = 0U;
 static uint8_t fsbb_ui_initialized = 0U;
 static uint8_t fsbb_ui_enable_after_fault_reset = 0U;
+static volatile uint32_t fsbb_ui_meas_count = 0U;
+static volatile ctrl_gt fsbb_ui_meas_sum[FSBB_UI_MEAS_CHANNELS] = {0};
+static ctrl_gt fsbb_ui_meas_avg[FSBB_UI_MEAS_CHANNELS] = {0};
+
+typedef enum
+{
+    FSBB_UI_MEAS_VIN = 0U,
+    FSBB_UI_MEAS_VOUT = 1U,
+    FSBB_UI_MEAS_IIN = 2U,
+    FSBB_UI_MEAS_IOUT = 3U,
+    FSBB_UI_MEAS_IL = 4U
+} fsbb_ui_meas_index_t;
+
+void fsbb_ui_sample_measurements(void)
+{
+    fsbb_ui_meas_sum[FSBB_UI_MEAS_VIN] += adc_v_in.control_port.value;
+    fsbb_ui_meas_sum[FSBB_UI_MEAS_VOUT] += adc_v_out.control_port.value;
+    fsbb_ui_meas_sum[FSBB_UI_MEAS_IIN] += adc_i_in.control_port.value;
+    fsbb_ui_meas_sum[FSBB_UI_MEAS_IOUT] += adc_i_load.control_port.value;
+    fsbb_ui_meas_sum[FSBB_UI_MEAS_IL] += adc_i_L.control_port.value;
+    fsbb_ui_meas_count++;
+}
+
+static void fsbb_ui_update_measurement_average(void)
+{
+    uint32_t count;
+    uint16_t i;
+    ctrl_gt sum_snapshot[FSBB_UI_MEAS_CHANNELS];
+
+    DINT;
+    count = fsbb_ui_meas_count;
+    if (count != 0U)
+    {
+        for (i = 0U; i < FSBB_UI_MEAS_CHANNELS; i++)
+        {
+            sum_snapshot[i] = fsbb_ui_meas_sum[i];
+            fsbb_ui_meas_sum[i] = 0;
+        }
+        fsbb_ui_meas_count = 0U;
+    }
+    EINT;
+
+    if (count != 0U)
+    {
+        for (i = 0U; i < FSBB_UI_MEAS_CHANNELS; i++)
+            fsbb_ui_meas_avg[i] = sum_snapshot[i] / (ctrl_gt)count;
+    }
+}
 
 static int32_t fsbb_ui_clamp_i32(int32_t value, int32_t min_value, int32_t max_value)
 {
@@ -436,11 +485,19 @@ static void fsbb_ui_render_7seg(ht16k33_dev_t* dev)
 static void fsbb_ui_render_oled(void)
 {
     char str_buf[32];
-    int32_t vin_cv = fsbb_ui_voltage_to_cv(adc_v_in.control_port.value);
-    int32_t vout_cv = fsbb_ui_voltage_to_cv(adc_v_out.control_port.value);
-    int32_t iin_ma = fsbb_ui_current_to_ma(adc_i_in.control_port.value);
-    int32_t iout_ma = fsbb_ui_current_to_ma(adc_i_load.control_port.value);
-    int32_t il_ma = fsbb_ui_current_to_ma(adc_i_L.control_port.value);
+    int32_t vin_cv;
+    int32_t vout_cv;
+    int32_t iin_ma;
+    int32_t iout_ma;
+    int32_t il_ma;
+
+    fsbb_ui_update_measurement_average();
+
+    vin_cv = fsbb_ui_voltage_to_cv(fsbb_ui_meas_avg[FSBB_UI_MEAS_VIN]);
+    vout_cv = fsbb_ui_voltage_to_cv(fsbb_ui_meas_avg[FSBB_UI_MEAS_VOUT]);
+    iin_ma = fsbb_ui_current_to_ma(fsbb_ui_meas_avg[FSBB_UI_MEAS_IIN]);
+    iout_ma = fsbb_ui_current_to_ma(fsbb_ui_meas_avg[FSBB_UI_MEAS_IOUT]);
+    il_ma = fsbb_ui_current_to_ma(fsbb_ui_meas_avg[FSBB_UI_MEAS_IL]);
 
     if (g_fsbb_control_mode == FSBB_CONTROL_MODE_CC)
         sprintf(str_buf, "Iset: %1ld.%02ld A  ", fsbb_ui_iset_ca / 100L, fsbb_ui_iset_ca % 100L);

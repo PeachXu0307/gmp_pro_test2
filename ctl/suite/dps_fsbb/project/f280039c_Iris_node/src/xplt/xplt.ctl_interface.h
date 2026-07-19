@@ -14,6 +14,7 @@ extern "C"
 #endif
 
 void GPIO_WritePin(uint16_t gpioNumber, uint16_t outVal);
+void fsbb_ui_sample_measurements(void);
 
 #ifndef FSBB_VIN_RESULT_BASE
 #define FSBB_VIN_RESULT_BASE ADC_CH3_RESULT_BASE
@@ -72,6 +73,8 @@ GMP_STATIC_INLINE void ctl_input_callback(void)
     adc_i_load.control_port.value = float2ctrl(0.0f);
 #endif
 
+    fsbb_ui_sample_measurements();
+
     if (!flag_enable_adc_calibrator)
         g_fsbb_faults |= ctl_fsbb_active_faults();
 }
@@ -96,6 +99,7 @@ GMP_STATIC_INLINE void ctl_output_callback(void)
 
     EPWM_setCounterCompareValue(PHASE_BUCK_BASE, EPWM_COUNTER_COMPARE_A, ctl_get_fsbb_buck_cmp(&fsbb_mod));
     EPWM_setCounterCompareValue(PHASE_BOOST_BASE, EPWM_COUNTER_COMPARE_A, ctl_get_fsbb_boost_cmp(&fsbb_mod));
+
 
 #if BUILD_LEVEL >= 1
     DAC_setShadowValue(IRIS_DACA_BASE, ctl_fsbb_dac_value(adc_v_out.control_port.value));

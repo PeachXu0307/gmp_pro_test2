@@ -21,14 +21,17 @@
 
 gpio_halt gpio_beep;
 
+#define BEEP_ACTIVE_LEVEL    1U
+#define BEEP_INACTIVE_LEVEL  0U
+
 void beep_on()
 {
-    gmp_hal_gpio_write(gpio_beep, 1);
+    gmp_hal_gpio_write(gpio_beep, BEEP_ACTIVE_LEVEL);
 }
 
 void beep_off()
 {
-    gmp_hal_gpio_write(gpio_beep, 0);
+    gmp_hal_gpio_write(gpio_beep, BEEP_INACTIVE_LEVEL);
 }
 
 //=================================================================================================

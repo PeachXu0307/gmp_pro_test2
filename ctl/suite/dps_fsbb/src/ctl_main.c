@@ -82,8 +82,8 @@ void ctl_init(void)
 
     fsbb_init.i_out_max = float2ctrl(FSBB_OUTPUT_CURRENT_LIM / CTRL_CURRENT_BASE);
     fsbb_init.i_out_min = float2ctrl(0.0f);
-    fsbb_init.v_cmd_max = float2ctrl(FSBB_OUTPUT_VOLTAGE_MAX / CTRL_VOLTAGE_BASE);
-    fsbb_init.v_cmd_min = float2ctrl(0.0f);
+    fsbb_init.v_cmd_max = float2ctrl(FSBB_VREQ_COMMAND_MAX / CTRL_VOLTAGE_BASE);
+    fsbb_init.v_cmd_min = float2ctrl(FSBB_VREQ_COMMAND_MIN / CTRL_VOLTAGE_BASE);
 
     fsbb_init.fc_current_loop = FSBB_CURRENT_LOOP_BANDWIDTH;
     fsbb_init.fc_voltage_loop = FSBB_VOLTAGE_LOOP_BANDWIDTH;
@@ -94,8 +94,8 @@ void ctl_init(void)
     // init FSBB controller core
     ctl_init_dcdc_core(&dcdc_core, &core_init);
     ctl_set_dcdc_core_limits(&dcdc_core,
-                             float2ctrl(FSBB_OUTPUT_VOLTAGE_MAX / CTRL_VOLTAGE_BASE),
-                             float2ctrl(0.0f));
+                             float2ctrl(FSBB_VREQ_COMMAND_MAX / CTRL_VOLTAGE_BASE),
+                             float2ctrl(FSBB_VREQ_COMMAND_MIN / CTRL_VOLTAGE_BASE));
 
     // attach FSBB with ADC peripheral
     ctl_attach_dcdc_core(&dcdc_core, &adc_v_in.control_port, &adc_v_out.control_port, &adc_i_L.control_port,

@@ -50,6 +50,7 @@ gmp_task_status_t tsk_startup(gmp_task_t* tsk);
 gmp_task_status_t tsk_fsbb_ui_key(gmp_task_t* tsk);
 gmp_task_status_t tsk_fsbb_ui_display(gmp_task_t* tsk);
 void fsbb_ui_init(void);
+void fsbb_ui_sample_measurements(void);
 
 #ifdef __cplusplus
 }

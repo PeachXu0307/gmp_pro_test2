@@ -205,7 +205,7 @@
 #define PHASE_W_BASE    IRIS_EPWM3_BASE
 
 // PWM Enable
-#define PWM_ENABLE_PORT IRIS_GPIO1
+#define PWM_ENABLE_PORT IRIS_GPIO2
 #define PWM_RESET_PORT  IRIS_GPIO3
 
 // Vbus Voltage Channels

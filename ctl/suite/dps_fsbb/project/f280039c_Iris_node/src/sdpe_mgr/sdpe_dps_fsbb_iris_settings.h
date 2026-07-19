@@ -78,7 +78,7 @@ extern "C"
  * @brief Incremental debug build level. 1: modulation and hardware check; 2: current loop; 3: voltage loop.
  *        Options: (1), (2), (3)
  */
-#define BUILD_LEVEL (1)
+#define BUILD_LEVEL (3)
 
 //=================================================================================================
 /**
@@ -88,8 +88,10 @@ extern "C"
 /**
  * @brief Gate-driver enable GPIO.
  *        Options: IRIS_GPIO1, IRIS_GPIO2, IRIS_GPIO3, IRIS_GPIO4, IRIS_GPIO5, IRIS_GPIO6
+ * @note IRIS_GPIO1 is GPIO58 and is used by the board buzzer. Keep PWM enable away from GPIO58
+ *       so the buzzer remains off when the power stage is enabled.
  */
-#define PWM_ENABLE_PORT IRIS_GPIO1
+#define PWM_ENABLE_PORT IRIS_GPIO2
 
 /**
  * @brief Gate-driver reset GPIO.
@@ -336,6 +338,17 @@ extern "C"
 #define FSBB_OUTPUT_VOLTAGE_MAX (72.0f)
 
 /**
+ * @brief Maximum equivalent voltage command allowed for the inner current loop.
+ * @note This is a controller headroom limit for v_req, not the Vout protection threshold.
+ */
+#define FSBB_VREQ_COMMAND_MAX (90.0f)
+
+/**
+ * @brief Minimum equivalent voltage command allowed for the inner current loop.
+ */
+#define FSBB_VREQ_COMMAND_MIN (0.0f)
+
+/**
  * @brief Minimum allowed FSBB output voltage command.
  */
 #define FSBB_OUTPUT_VOLTAGE_MIN (3.0f)
@@ -354,6 +367,12 @@ extern "C"
  * @brief Default startup current command and limit.
  */
 #define FSBB_DEFAULT_CURRENT_LIMIT (5.0f)
+
+/**
+ * @brief CV mode voltage-loop output limit, expressed as inductor-current reference in A.
+ * @note Boost operation needs inductor/input current higher than output current.
+ */
+#define FSBB_CV_INDUCTOR_CURRENT_LIMIT (18.0f)
 
 /**
  * @brief Maximum FSBB leg duty ratio.

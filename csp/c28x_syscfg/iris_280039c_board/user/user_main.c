@@ -198,13 +198,7 @@ gmp_task_status_t tsk_startup(gmp_task_t* tsk)
 
     static uint16_t beep_counter = 0;
 
-    if (beep_counter == 0)
-        beep_on();
-    else if (beep_counter == 1)
-        beep_off();
-    else if (beep_counter == 2)
-        beep_on();
-    else if (beep_counter == 3)
+    if (beep_counter < 4)
         beep_off();
 
     beep_counter += 1;

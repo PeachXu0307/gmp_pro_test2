@@ -62,6 +62,18 @@ typedef enum _tag_fsbb_fault
 extern volatile uint16_t g_fsbb_faults;
 extern volatile fast_gt g_fsbb_output_enabled;
 
+#ifndef FSBB_CV_INDUCTOR_CURRENT_LIMIT
+#define FSBB_CV_INDUCTOR_CURRENT_LIMIT FSBB_DEFAULT_CURRENT_LIMIT
+#endif
+
+#ifndef FSBB_VREQ_COMMAND_MAX
+#define FSBB_VREQ_COMMAND_MAX FSBB_OUTPUT_VOLTAGE_MAX
+#endif
+
+#ifndef FSBB_VREQ_COMMAND_MIN
+#define FSBB_VREQ_COMMAND_MIN 0.0f
+#endif
+
 void ctl_init(void);
 void ctl_mainloop(void);
 void ctl_enable_pwm(void);
@@ -88,18 +100,31 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
     if (g_fsbb_faults != FSBB_FAULT_NONE)
         return;
 
+    {
+    static fsbb_control_mode_t last_control_mode = FSBB_CONTROL_MODE_CV;
+
+    if (last_control_mode != g_fsbb_control_mode)
+    {
+        ctl_clear_dcdc_core(&dcdc_core);
+        last_control_mode = g_fsbb_control_mode;
+    }
+
     if (g_fsbb_control_mode == FSBB_CONTROL_MODE_CC)
     {
         dcdc_core.mode = CTL_DCDC_MODE_CURRENTLOOP;
         dcdc_core.i_target = ctl_sat(g_i_limit_user,
                                      float2ctrl(FSBB_OUTPUT_CURRENT_LIM / CTRL_CURRENT_BASE),
                                      float2ctrl(0.0f));
+        ctl_set_pid_limit(&dcdc_core.current_pid, float2ctrl(FSBB_VREQ_COMMAND_MAX / CTRL_VOLTAGE_BASE),
+                          float2ctrl(FSBB_VREQ_COMMAND_MIN / CTRL_VOLTAGE_BASE));
+        ctl_set_pid_int_limit(&dcdc_core.current_pid, float2ctrl(FSBB_VREQ_COMMAND_MAX / CTRL_VOLTAGE_BASE),
+                              float2ctrl(FSBB_VREQ_COMMAND_MIN / CTRL_VOLTAGE_BASE));
         v_req = ctl_step_dcdc_output_current_loop(&dcdc_core);
     }
     else
     {
-        ctrl_gt current_limit = ctl_sat(g_i_limit_user,
-                                        float2ctrl(FSBB_OUTPUT_CURRENT_LIM / CTRL_CURRENT_BASE),
+        ctrl_gt current_limit = ctl_sat(float2ctrl(FSBB_CV_INDUCTOR_CURRENT_LIMIT / CTRL_CURRENT_BASE),
+                                        float2ctrl(FSBB_PROTECT_IL_MAX / CTRL_CURRENT_BASE),
                                         float2ctrl(0.0f));
         dcdc_core.mode = CTL_DCDC_MODE_VOLTAGELOOP;
         dcdc_core.v_target = ctl_sat(g_v_out_ref_user,
@@ -107,7 +132,12 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
                                      float2ctrl(FSBB_OUTPUT_VOLTAGE_MIN / CTRL_VOLTAGE_BASE));
         ctl_set_pid_limit(&dcdc_core.voltage_pid, current_limit, float2ctrl(0.0f));
         ctl_set_pid_int_limit(&dcdc_core.voltage_pid, current_limit, float2ctrl(0.0f));
+        ctl_set_pid_limit(&dcdc_core.current_pid, float2ctrl(FSBB_VREQ_COMMAND_MAX / CTRL_VOLTAGE_BASE),
+                          float2ctrl(FSBB_VREQ_COMMAND_MIN / CTRL_VOLTAGE_BASE));
+        ctl_set_pid_int_limit(&dcdc_core.current_pid, float2ctrl(FSBB_VREQ_COMMAND_MAX / CTRL_VOLTAGE_BASE),
+                              float2ctrl(FSBB_VREQ_COMMAND_MIN / CTRL_VOLTAGE_BASE));
         v_req = ctl_step_dcdc_cascade(&dcdc_core);
+    }
     }
 
     ctl_step_fsbb_modulator(&fsbb_mod, v_req, adc_v_in.control_port.value);
