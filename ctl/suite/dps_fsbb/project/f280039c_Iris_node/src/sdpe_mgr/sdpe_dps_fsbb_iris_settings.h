@@ -309,14 +309,15 @@ extern "C"
 #define CTRL_FSBB_IIN_BIAS GMP_LVFB_CURRENT_BIAS_V
 
 /**
- * @brief Inductor current ADC sensing sensitivity provided by the LVFB current sensor path.
+ * @brief Inductor current ADC sensing sensitivity in V/A.
+ * @note ADC_CH2 calibration: 1.636V maps to IL=0A, 1.710V maps to IL=0.5A.
  */
-#define CTRL_FSBB_IL_SENSITIVITY GMP_LVFB_CURRENT_SENSITIVITY
+#define CTRL_FSBB_IL_SENSITIVITY (0.148f)
 
 /**
- * @brief Inductor current ADC bias voltage provided by the LVFB current sensor path.
+ * @brief Inductor current ADC bias voltage in V.
  */
-#define CTRL_FSBB_IL_BIAS GMP_LVFB_CURRENT_BIAS_V
+#define CTRL_FSBB_IL_BIAS (1.636f)
 
 /**
  * @brief 
@@ -367,7 +368,7 @@ extern "C"
 /**
  * @brief Default startup output-voltage command.
  */
-#define FSBB_DEFAULT_OUTPUT_VOLTAGE (30.0f)
+#define FSBB_DEFAULT_OUTPUT_VOLTAGE (15.0f)
 
 /**
  * @brief Default startup current command and limit.

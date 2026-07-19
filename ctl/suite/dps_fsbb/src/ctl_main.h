@@ -107,6 +107,29 @@ GMP_STATIC_INLINE ctrl_gt ctl_step_fsbb_output_current_cascade(void)
     return dcdc_core.v_out_formal;
 }
 
+GMP_STATIC_INLINE ctrl_gt ctl_step_fsbb_voltage_cascade_aw(void)
+{
+    ctl_dcdc_internal_ingest_and_filter(&dcdc_core);
+    dcdc_core.is_current_dominant = 0;
+
+    dcdc_core.v_ramp_ref = ctl_step_slope_limiter(&dcdc_core.ramp_v, dcdc_core.v_target);
+    ctrl_gt error_v = dcdc_core.v_ramp_ref - dcdc_core.filter_v_out.out;
+    ctrl_gt inner_i_ref = ctl_step_pid_ser(&dcdc_core.voltage_pid, error_v);
+
+    ctrl_gt error_i = inner_i_ref - dcdc_core.filter_i_L.out;
+    dcdc_core.v_out_formal = ctl_step_pid_ser(&dcdc_core.current_pid, error_i);
+    dcdc_core.v_out_formal = ctl_sat(dcdc_core.v_out_formal, dcdc_core.out_max, dcdc_core.out_min);
+
+    if (((dcdc_core.v_out_formal >= dcdc_core.current_pid.out_max) && (error_v > float2ctrl(0.0f))) ||
+        ((dcdc_core.v_out_formal <= dcdc_core.current_pid.out_min) && (error_v < float2ctrl(0.0f))))
+    {
+        ctl_pid_clamping_correction_using_real_output(&dcdc_core.voltage_pid, dcdc_core.filter_i_L.out);
+        dcdc_core.is_current_dominant = 1;
+    }
+
+    return dcdc_core.v_out_formal;
+}
+
 /** Execute one control sample after the platform input callback has run. */
 GMP_STATIC_INLINE void ctl_dispatch(void)
 {
@@ -122,6 +145,9 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
         return;
     }
 #endif
+
+    g_fsbb_faults = 0;
+
 
     if (g_fsbb_faults != FSBB_FAULT_NONE)
         return;
@@ -166,7 +192,7 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
                               float2ctrl(0.0f));
             ctl_set_pid_int_limit(&dcdc_core.current_pid, float2ctrl(FSBB_CONTROL_VOLTAGE_CMD_MAX / CTRL_VOLTAGE_BASE),
                                   float2ctrl(0.0f));
-            v_req = ctl_step_dcdc_cascade(&dcdc_core);
+            v_req = ctl_step_fsbb_voltage_cascade_aw();
         }
     }
 

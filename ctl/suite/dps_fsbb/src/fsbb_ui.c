@@ -168,8 +168,8 @@ static void fsbb_ui_apply_setpoints(void)
     fsbb_ui_iset_ca = fsbb_ui_clamp_current_ca(fsbb_ui_iset_ca);
 
     g_v_out_ref_user = float2ctrl((float)fsbb_ui_vset_cv / 100.0f);
-    g_i_limit_user = float2ctrl((float)fsbb_ui_iset_ca / 100.0f);
-    g_i_out_ref_user = g_i_limit_user;
+    g_i_limit_user = float2ctrl(FSBB_DEFAULT_CURRENT_LIMIT);
+    g_i_out_ref_user = float2ctrl((float)fsbb_ui_iset_ca / 100.0f);
 }
 
 static void fsbb_ui_update_leds(void)
@@ -574,7 +574,10 @@ gmp_task_status_t tsk_fsbb_ui_key(gmp_task_t* tsk)
             cia402_send_cmd(&cia402_sm, CIA402_CMD_DISABLE_VOLTAGE);
         }
         else
+        {
+            fsbb_ui_apply_setpoints();
             fsbb_ui_request_output_enable();
+        }
         break;
 
     case FSBB_UI_KEY_MODE:
