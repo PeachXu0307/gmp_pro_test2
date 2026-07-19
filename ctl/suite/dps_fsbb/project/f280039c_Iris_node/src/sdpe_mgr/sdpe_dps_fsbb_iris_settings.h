@@ -131,13 +131,13 @@ extern "C"
  * @brief Input voltage ADC result register base.
  *        Options: ADC_CH1_ADC_BASE, ADC_CH2_ADC_BASE, ADC_CH3_ADC_BASE, ADC_CH4_ADC_BASE, ADC_CH5_ADC_BASE, ADC_CH6_ADC_BASE, ADC_CH7_ADC_BASE, ADC_CH8_ADC_BASE, ADC_CH9_ADC_BASE, ADC_CH10_ADC_BASE, ADC_CH11_ADC_BASE, ADC_CH12_ADC_BASE
  */
-#define FSBB_VIN_ADC_BASE ADC_CH3_ADC_BASE
+#define FSBB_VIN_ADC_BASE ADC_CH7_ADC_BASE
 
 /**
  * @brief Input voltage ADC channel index.
  *        Options: ADC_CH1, ADC_CH2, ADC_CH3, ADC_CH4, ADC_CH5, ADC_CH6, ADC_CH7, ADC_CH8, ADC_CH9, ADC_CH10, ADC_CH11, ADC_CH12
  */
-#define FSBB_VIN ADC_CH3
+#define FSBB_VIN ADC_CH7
 
 /**
  * @brief Output voltage ADC result register base.
@@ -228,9 +228,9 @@ extern "C"
 #define CTRL_ADC_VOLTAGE_REF (3.3f)
 
 /**
- * @brief Voltage per-unit base value, using the peak value of the nominal 24 Vrms system.
+ * @brief Voltage per-unit base.
  */
-#define CTRL_VOLTAGE_BASE (34.0f)
+#define CTRL_VOLTAGE_BASE (60.0f)
 
 /**
  * @brief Current per-unit base value, using the peak value of the nominal 10 Arms system.
@@ -240,7 +240,7 @@ extern "C"
 /**
  * @brief Minimum load resistance used by FSBB controller initialization.
  */
-#define FSBB_PARAM_RLOAD_MIN (20.0f)
+#define FSBB_PARAM_RLOAD_MIN (10.0f)
 
 /**
  * @brief Input DC-link capacitance.
@@ -268,100 +268,106 @@ extern "C"
 #define FSBB_PARAM_L_ESR (0.05f)
 
 /**
- * @brief Input voltage ADC sensing sensitivity provided by the LVFB voltage sensor path.
+ * @brief Input voltage ADC sensing sensitivity in V/V.
+ * @note CH3 calibration: 1.65V ADC input maps to Vin=0V, 1.95V maps to Vin=30V.
  */
-#define CTRL_FSBB_VIN_SENSITIVITY (0.12f / 9.0f)
+#define CTRL_FSBB_VIN_SENSITIVITY (0.0122f)
 
 /**
- * @brief Input voltage ADC bias voltage provided by the LVFB voltage sensor path.
+ * @brief Input voltage ADC bias voltage in V.
  */
-#define CTRL_FSBB_VIN_BIAS (1.58f)
+#define CTRL_FSBB_VIN_BIAS (1.685f)
 
 /**
  * @brief Output voltage ADC sensing sensitivity provided by the LVFB voltage sensor path.
  */
-#define CTRL_FSBB_VOUT_SENSITIVITY (0.02705f)
+#define CTRL_FSBB_VOUT_SENSITIVITY GMP_LVFB_VOLTAGE_SENSITIVITY
 
 /**
  * @brief Output voltage ADC bias voltage provided by the LVFB voltage sensor path.
  */
-#define CTRL_FSBB_VOUT_BIAS (0.0f)
+#define CTRL_FSBB_VOUT_BIAS GMP_LVFB_VOLTAGE_BIAS_V
 
 /**
  * @brief Load/output current ADC sensing sensitivity provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IOUT_SENSITIVITY (0.148f)
+#define CTRL_FSBB_IOUT_SENSITIVITY GMP_LVFB_CURRENT_SENSITIVITY
 
 /**
  * @brief Load/output current ADC bias voltage provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IOUT_BIAS (1.636f)
+#define CTRL_FSBB_IOUT_BIAS GMP_LVFB_CURRENT_BIAS_V
 
 /**
  * @brief Input current ADC sensing sensitivity provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IIN_SENSITIVITY (0.148f)
+#define CTRL_FSBB_IIN_SENSITIVITY GMP_LVFB_CURRENT_SENSITIVITY
 
 /**
  * @brief Input current ADC bias voltage provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IIN_BIAS (1.636f)
+#define CTRL_FSBB_IIN_BIAS GMP_LVFB_CURRENT_BIAS_V
 
 /**
  * @brief Inductor current ADC sensing sensitivity provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IL_SENSITIVITY (0.148f)
+#define CTRL_FSBB_IL_SENSITIVITY GMP_LVFB_CURRENT_SENSITIVITY
 
 /**
  * @brief Inductor current ADC bias voltage provided by the LVFB current sensor path.
  */
-#define CTRL_FSBB_IL_BIAS (1.636f)
+#define CTRL_FSBB_IL_BIAS GMP_LVFB_CURRENT_BIAS_V
 
 /**
  * @brief 
  */
-#define FSBB_INPUT_VOLTAGE_MAX (60.0f)
+#define FSBB_INPUT_VOLTAGE_MAX (36.0f)
 
 /**
  * @brief Minimum allowed FSBB input voltage.
  */
-#define FSBB_INPUT_VOLTAGE_MIN (12.0f)
+#define FSBB_INPUT_VOLTAGE_MIN (24.0f)
 
 /**
  * @brief Nominal input voltage used when input-voltage sampling is disabled.
  */
-#define FSBB_INPUT_VOLTAGE_NOMINAL (24.0f)
+#define FSBB_INPUT_VOLTAGE_NOMINAL (30.0f)
 
 /**
  * @brief Maximum allowed FSBB output voltage command.
  */
-#define FSBB_OUTPUT_VOLTAGE_MAX (72.0f)
+#define FSBB_OUTPUT_VOLTAGE_MAX (50.0f)
 
 /**
- * @brief Maximum equivalent voltage command allowed for the inner current loop.
- * @note This is a controller headroom limit for v_req, not the Vout protection threshold.
+ * @brief Output over-voltage fault threshold.
  */
-#define FSBB_VREQ_COMMAND_MAX (90.0f)
+#define FSBB_OUTPUT_VOLTAGE_PROTECT_MAX (55.0f)
 
 /**
- * @brief Minimum equivalent voltage command allowed for the inner current loop.
+ * @brief Maximum internal formal-voltage command.
+ * @note Higher than the user setpoint range to compensate MOSFET, diode and ESR losses at full load.
  */
-#define FSBB_VREQ_COMMAND_MIN (0.0f)
+#define FSBB_CONTROL_VOLTAGE_CMD_MAX (58.0f)
 
 /**
  * @brief Minimum allowed FSBB output voltage command.
  */
-#define FSBB_OUTPUT_VOLTAGE_MIN (3.0f)
+#define FSBB_OUTPUT_VOLTAGE_MIN (10.0f)
 
 /**
  * @brief Maximum allowed FSBB output/load current.
  */
-#define FSBB_OUTPUT_CURRENT_LIM (10.0f)
+#define FSBB_OUTPUT_CURRENT_LIM (5.0f)
+
+/**
+ * @brief Output over-current fault threshold.
+ */
+#define FSBB_OUTPUT_CURRENT_PROTECT_MAX (5.5f)
 
 /**
  * @brief Default startup output-voltage command.
  */
-#define FSBB_DEFAULT_OUTPUT_VOLTAGE (24.0f)
+#define FSBB_DEFAULT_OUTPUT_VOLTAGE (30.0f)
 
 /**
  * @brief Default startup current command and limit.
@@ -369,10 +375,14 @@ extern "C"
 #define FSBB_DEFAULT_CURRENT_LIMIT (5.0f)
 
 /**
- * @brief CV mode voltage-loop output limit, expressed as inductor-current reference in A.
- * @note Boost operation needs inductor/input current higher than output current.
+ * @brief Default constant-current command.
  */
-#define FSBB_CV_INDUCTOR_CURRENT_LIMIT (18.0f)
+#define FSBB_DEFAULT_OUTPUT_CURRENT (2.0f)
+
+/**
+ * @brief Minimum user-settable output-current command.
+ */
+#define FSBB_OUTPUT_CURRENT_MIN (1.0f)
 
 /**
  * @brief Maximum FSBB leg duty ratio.
@@ -387,17 +397,22 @@ extern "C"
 /**
  * @brief Positive inductor current protection threshold.
  */
-#define FSBB_PROTECT_IL_MAX (25.0f)
+#define FSBB_PROTECT_IL_MAX (13.0f)
+
+/**
+ * @brief Maximum inductor-current command used by CV and CC cascaded loops.
+ */
+#define FSBB_INDUCTOR_CURRENT_CMD_MAX (11.0f)
 
 /**
  * @brief Negative inductor current protection threshold.
  */
-#define FSBB_PROTECT_IL_MIN (-2.0f)
+#define FSBB_PROTECT_IL_MIN (-1.0f)
 
 /**
  * @brief Equivalent output-voltage command used by BUILD_LEVEL 1.
  */
-#define FSBB_OPEN_LOOP_VOLTAGE_COMMAND (12.0f)
+#define FSBB_OPEN_LOOP_VOLTAGE_COMMAND (10.0f)
 
 /**
  * @brief Requested current-loop crossover frequency.
@@ -405,9 +420,29 @@ extern "C"
 #define FSBB_CURRENT_LOOP_BANDWIDTH (800.0f)
 
 /**
+ * @brief Output-current feedback filter bandwidth for the CC outer loop.
+ */
+#define FSBB_OUTPUT_CURRENT_FILTER_BANDWIDTH (500.0f)
+
+/**
+ * @brief Output-current outer loop proportional gain for CC mode.
+ */
+#define FSBB_OUTPUT_CURRENT_OUTER_KP (1.30f)
+
+/**
+ * @brief Output-current outer loop integral gain for CC mode.
+ */
+#define FSBB_OUTPUT_CURRENT_OUTER_KI (120.0f)
+
+/**
  * @brief Requested voltage-loop crossover frequency.
  */
-#define FSBB_VOLTAGE_LOOP_BANDWIDTH (40.0f)
+#define FSBB_VOLTAGE_LOOP_BANDWIDTH (35.0f)
+
+/**
+ * @brief Estimated inductor-current margin for boost full-load operation.
+ */
+#define FSBB_CV_INDUCTOR_CURRENT_MARGIN (1.15f)
 
 /**
  * @brief Lower voltage-ratio boundary of the buck-boost transition region.
@@ -427,17 +462,17 @@ extern "C"
 /**
  * @brief SPLL close-loop convergence threshold.
  */
-#define CTRL_SPLL_EPSILON ((float2ctrl(0.005)))
+#define CTRL_SPLL_EPSILON (0.005f)
 
 /**
  * @brief Voltage-reference slew rate in PU/s.
  */
-#define FSBB_VOLTAGE_RAMP_PU_S (1.0f)
+#define FSBB_VOLTAGE_RAMP_PU_S (1.5f)
 
 /**
  * @brief Current-reference slew rate in PU/s.
  */
-#define FSBB_CURRENT_RAMP_PU_S (1.0f)
+#define FSBB_CURRENT_RAMP_PU_S (1.5f)
 
 // User project tail code
 /* Backward compatibility for the historical misspelled PIL switch. */

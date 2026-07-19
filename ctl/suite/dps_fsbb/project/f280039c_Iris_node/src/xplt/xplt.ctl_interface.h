@@ -17,7 +17,7 @@ void GPIO_WritePin(uint16_t gpioNumber, uint16_t outVal);
 void fsbb_ui_sample_measurements(void);
 
 #ifndef FSBB_VIN_RESULT_BASE
-#define FSBB_VIN_RESULT_BASE ADC_CH3_RESULT_BASE
+#define FSBB_VIN_RESULT_BASE ADC_CH7_RESULT_BASE
 #endif
 #ifndef FSBB_VOUT_RESULT_BASE
 #define FSBB_VOUT_RESULT_BASE ADC_CH5_RESULT_BASE
@@ -42,15 +42,15 @@ GMP_STATIC_INLINE uint16_t ctl_fsbb_active_faults(void)
     if (adc_v_in.control_port.value > float2ctrl(FSBB_INPUT_VOLTAGE_MAX / CTRL_VOLTAGE_BASE))
         faults |= FSBB_FAULT_VIN_OVERVOLTAGE;
 #endif
-    if (adc_v_out.control_port.value > float2ctrl(FSBB_OUTPUT_VOLTAGE_MAX / CTRL_VOLTAGE_BASE))
+    if (adc_v_out.control_port.value > float2ctrl(FSBB_OUTPUT_VOLTAGE_PROTECT_MAX / CTRL_VOLTAGE_BASE))
         faults |= FSBB_FAULT_VOUT_OVERVOLTAGE;
     if (adc_i_L.control_port.value > float2ctrl(FSBB_PROTECT_IL_MAX / CTRL_CURRENT_BASE))
         faults |= FSBB_FAULT_IL_POSITIVE_OVERCURRENT;
     if (adc_i_L.control_port.value < float2ctrl(FSBB_PROTECT_IL_MIN / CTRL_CURRENT_BASE))
         faults |= FSBB_FAULT_IL_NEGATIVE_OVERCURRENT;
 #if defined FSBB_ENABLE_IOUT_SAMPLE
-    if ((adc_i_load.control_port.value > float2ctrl(FSBB_OUTPUT_CURRENT_LIM / CTRL_CURRENT_BASE)) ||
-        (adc_i_load.control_port.value < -float2ctrl(FSBB_OUTPUT_CURRENT_LIM / CTRL_CURRENT_BASE)))
+    if ((adc_i_load.control_port.value > float2ctrl(FSBB_OUTPUT_CURRENT_PROTECT_MAX / CTRL_CURRENT_BASE)) ||
+        (adc_i_load.control_port.value < -float2ctrl(FSBB_OUTPUT_CURRENT_PROTECT_MAX / CTRL_CURRENT_BASE)))
         faults |= FSBB_FAULT_IOUT_OVERCURRENT;
 #endif
 

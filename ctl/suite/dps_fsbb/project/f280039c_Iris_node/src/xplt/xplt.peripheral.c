@@ -227,9 +227,10 @@ interrupt void INT_IRIS_CAN_0_ISR(void)
         CAN_readMessage(IRIS_CAN_BASE, 2, (uint16_t*)recv_content);
         CAN_clearInterruptStatus(IRIS_CAN_BASE, 2);
 
-        // Map received CAN payload to user setpoints (Converted to PU)
+        // Map received CAN payload to user setpoints in physical units.
         g_v_out_ref_user = float2ctrl((float)recv_content[0].i32 / CAN_SCALE_FACTOR);
         g_i_limit_user   = float2ctrl((float)recv_content[1].i32 / CAN_SCALE_FACTOR);
+        g_i_out_ref_user = g_i_limit_user;
     }
 
     // Clear the global interrupt flag

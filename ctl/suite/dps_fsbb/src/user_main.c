@@ -36,6 +36,7 @@ const gmp_param_item_t dict_m1[] = {
     {&cia402_sm.current_state, GMP_PARAM_TYPE_U16, GMP_PARAM_PERM_RO},
     {&g_v_out_ref_user, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
     {&g_i_limit_user, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
+    {&g_i_out_ref_user, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
 
     // Feedback and controller state
     {&adc_v_in.control_port.value, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},

@@ -9,10 +9,10 @@
 
 #define FSBB_UI_MIN_VOLTAGE_CV       1000L
 #define FSBB_UI_MAX_VOLTAGE_CV       5000L
-#define FSBB_UI_DEFAULT_VOLTAGE_CV   1000L
+#define FSBB_UI_DEFAULT_VOLTAGE_CV   3000L
 #define FSBB_UI_MIN_CURRENT_CA       100L
 #define FSBB_UI_MAX_CURRENT_CA       500L
-#define FSBB_UI_DEFAULT_CURRENT_CA   100L
+#define FSBB_UI_DEFAULT_CURRENT_CA   200L
 #define FSBB_UI_OLED_REFRESH_MS      250U
 
 #define FSBB_UI_KEY_RIGHT            1U
@@ -167,8 +167,9 @@ static void fsbb_ui_apply_setpoints(void)
     fsbb_ui_vset_cv = fsbb_ui_clamp_voltage_cv(fsbb_ui_vset_cv);
     fsbb_ui_iset_ca = fsbb_ui_clamp_current_ca(fsbb_ui_iset_ca);
 
-    g_v_out_ref_user = float2ctrl(((float)fsbb_ui_vset_cv / 100.0f) / CTRL_VOLTAGE_BASE);
-    g_i_limit_user = float2ctrl(((float)fsbb_ui_iset_ca / 100.0f) / CTRL_CURRENT_BASE);
+    g_v_out_ref_user = float2ctrl((float)fsbb_ui_vset_cv / 100.0f);
+    g_i_limit_user = float2ctrl((float)fsbb_ui_iset_ca / 100.0f);
+    g_i_out_ref_user = g_i_limit_user;
 }
 
 static void fsbb_ui_update_leds(void)

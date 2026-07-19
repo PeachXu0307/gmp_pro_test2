@@ -19,6 +19,7 @@ cia402_sm_t cia402_sm;
 
 // Control Law Core
 ctl_dcdc_core_t dcdc_core;
+ctl_pid_t fsbb_iout_pid;
 
 // Input channel
 adc_channel_t adc_v_in;
@@ -36,11 +37,12 @@ volatile fast_gt flag_enable_adc_calibrator = 0;
 volatile fast_gt index_adc_calibrator = 0;
 volatile uint16_t g_fsbb_faults = FSBB_FAULT_NONE;
 volatile fast_gt g_fsbb_output_enabled = 0;
-volatile fsbb_control_mode_t g_fsbb_control_mode = FSBB_CONTROL_MODE_CV;
 
 // User commands
-ctrl_gt g_v_out_ref_user = float2ctrl(10.0f / CTRL_VOLTAGE_BASE);
-ctrl_gt g_i_limit_user = float2ctrl(1.0f / CTRL_CURRENT_BASE);
+ctrl_gt g_v_out_ref_user = float2ctrl(FSBB_DEFAULT_OUTPUT_VOLTAGE);
+ctrl_gt g_i_limit_user = float2ctrl(FSBB_DEFAULT_CURRENT_LIMIT);
+ctrl_gt g_i_out_ref_user = float2ctrl(FSBB_DEFAULT_OUTPUT_CURRENT);
+volatile uint16_t g_fsbb_control_mode = FSBB_CONTROL_MODE_CV;
 ctrl_gt v_req = float2ctrl(0.0f);
 
 //=================================================================================================
@@ -82,20 +84,28 @@ void ctl_init(void)
 
     fsbb_init.i_out_max = float2ctrl(FSBB_OUTPUT_CURRENT_LIM / CTRL_CURRENT_BASE);
     fsbb_init.i_out_min = float2ctrl(0.0f);
-    fsbb_init.v_cmd_max = float2ctrl(FSBB_VREQ_COMMAND_MAX / CTRL_VOLTAGE_BASE);
-    fsbb_init.v_cmd_min = float2ctrl(FSBB_VREQ_COMMAND_MIN / CTRL_VOLTAGE_BASE);
+    fsbb_init.v_cmd_max = float2ctrl(FSBB_CONTROL_VOLTAGE_CMD_MAX / CTRL_VOLTAGE_BASE);
+    fsbb_init.v_cmd_min = float2ctrl(0.0f);
 
     fsbb_init.fc_current_loop = FSBB_CURRENT_LOOP_BANDWIDTH;
     fsbb_init.fc_voltage_loop = FSBB_VOLTAGE_LOOP_BANDWIDTH;
 
     ctl_dcdc_core_init_t core_init = {0};
     ctl_dcdc_blueprint_fsbb_cascade(&core_init, &fsbb_init);
+    core_init.fc_i_load = FSBB_OUTPUT_CURRENT_FILTER_BANDWIDTH;
 
     // init FSBB controller core
     ctl_init_dcdc_core(&dcdc_core, &core_init);
     ctl_set_dcdc_core_limits(&dcdc_core,
-                             float2ctrl(FSBB_VREQ_COMMAND_MAX / CTRL_VOLTAGE_BASE),
-                             float2ctrl(FSBB_VREQ_COMMAND_MIN / CTRL_VOLTAGE_BASE));
+                             float2ctrl(FSBB_CONTROL_VOLTAGE_CMD_MAX / CTRL_VOLTAGE_BASE),
+                             float2ctrl(0.0f));
+
+    ctl_init_pid(&fsbb_iout_pid, FSBB_OUTPUT_CURRENT_OUTER_KP, FSBB_OUTPUT_CURRENT_OUTER_KI, 0.0f,
+                 CONTROLLER_FREQUENCY);
+    ctl_set_pid_limit(&fsbb_iout_pid, float2ctrl(FSBB_INDUCTOR_CURRENT_CMD_MAX / CTRL_CURRENT_BASE),
+                      float2ctrl(0.0f));
+    ctl_set_pid_int_limit(&fsbb_iout_pid, float2ctrl(FSBB_INDUCTOR_CURRENT_CMD_MAX / CTRL_CURRENT_BASE),
+                          float2ctrl(0.0f));
 
     // attach FSBB with ADC peripheral
     ctl_attach_dcdc_core(&dcdc_core, &adc_v_in.control_port, &adc_v_out.control_port, &adc_i_L.control_port,
@@ -174,8 +184,11 @@ gmp_task_status_t tsk_protect(gmp_task_t* tsk)
 {
     GMP_UNUSED_VAR(tsk);
 
+#if !defined DISABLE_FSBB_PROTECTION_FAULT_LOGIC
     if (g_fsbb_faults != FSBB_FAULT_NONE)
         cia402_fault_request(&cia402_sm);
+#endif // DISABLE_FSBB_PROTECTION_FAULT_LOGIC
+
     return GMP_TASK_DONE;
 }
 
@@ -229,6 +242,7 @@ fast_gt ctl_exec_adc_calibration(void)
 void clear_all_controllers(void)
 {
     ctl_clear_dcdc_core(&dcdc_core);
+    ctl_clear_pid(&fsbb_iout_pid);
 }
 
 fast_gt ctl_fault_recover_routine(void)
