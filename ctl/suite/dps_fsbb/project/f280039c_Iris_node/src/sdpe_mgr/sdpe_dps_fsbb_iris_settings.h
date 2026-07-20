@@ -114,7 +114,7 @@ extern "C"
  * @brief Buck phase ePWM base.
  *        Options: IRIS_EPWM1_BASE, IRIS_EPWM2_BASE, IRIS_EPWM3_BASE, IRIS_EPWM4_BASE, IRIS_EPWM5_BASE, IRIS_EPWM6_BASE
  */
-#define PHASE_BUCK_BASE IRIS_EPWM1_BASE
+#define PHASE_BUCK_BASE IRIS_EPWM3_BASE
 
 /**
  * @brief Boost phase ePWM base.

@@ -95,6 +95,22 @@ void ctl_init(void)
     ctl_dcdc_blueprint_fsbb_cascade(&core_init, &fsbb_init);
     core_init.fc_i_load = FSBB_OUTPUT_CURRENT_FILTER_BANDWIDTH;
 
+
+
+    /* 在这里手动覆写PID参数（蓝图自动算完后再人工修正） */
+
+    // 电压环PID参数（注意：这里是连续域参数，离散化由 ctl_init_pid 自动完成）
+    core_init.v_kp = 0.5f;     // 电压环比例增益
+    core_init.v_ki = 30.0f;    // 电压环积分增益 (Hz)
+    core_init.v_kd = 0.0f;     // 电压环微分增益
+
+    // 电流环PID参数
+    core_init.i_kp = 2.0f;     // 电流环比例增益
+    core_init.i_ki = 50.0f;    // 电流环积分增益 (Hz)
+    core_init.i_kd = 0.0f;     // 电流环微分增益
+
+
+
     // init FSBB controller core
     ctl_init_dcdc_core(&dcdc_core, &core_init);
     ctl_set_dcdc_core_limits(&dcdc_core,

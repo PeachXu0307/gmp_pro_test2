@@ -36,6 +36,40 @@ ht16k33_dev_t ht16k33;
 #define FSBB_UI_LED_ACTIVE_LEVEL      0U
 #define FSBB_UI_LED_INACTIVE_LEVEL    1U
 
+static void fsbb_configure_complementary_pwm_leg(uint32_t base)
+{
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_A, EPWM_AQ_OUTPUT_NO_CHANGE,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_A, EPWM_AQ_OUTPUT_NO_CHANGE,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_PERIOD);
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_A, EPWM_AQ_OUTPUT_HIGH,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_A, EPWM_AQ_OUTPUT_LOW,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
+
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_NO_CHANGE,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_NO_CHANGE,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_PERIOD);
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_NO_CHANGE,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_NO_CHANGE,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_NO_CHANGE,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPB);
+    EPWM_setActionQualifierAction(base, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_NO_CHANGE,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPB);
+
+    EPWM_setRisingEdgeDeadBandDelayInput(base, EPWM_DB_INPUT_EPWMA);
+    EPWM_setFallingEdgeDeadBandDelayInput(base, EPWM_DB_INPUT_EPWMA);
+    EPWM_setDeadBandDelayPolarity(base, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH);
+    EPWM_setDeadBandDelayPolarity(base, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_LOW);
+    EPWM_setDeadBandDelayMode(base, EPWM_DB_RED, true);
+    EPWM_setDeadBandDelayMode(base, EPWM_DB_FED, true);
+    EPWM_setRisingEdgeDelayCount(base, CTRL_PWM_DEADBAND_CMP);
+    EPWM_setFallingEdgeDelayCount(base, CTRL_PWM_DEADBAND_CMP);
+}
+
 static void initI2C(void)
 {
     I2C_disableModule(I2CA_BASE);
@@ -77,6 +111,9 @@ void setup_peripheral(void)
     GPIO_setDirectionMode(FSBB_UI_LED_OUTPUT_GPIO, GPIO_DIR_MODE_OUT);
     GPIO_WritePin(FSBB_UI_LED_MODE_GPIO, FSBB_UI_LED_ACTIVE_LEVEL);
     GPIO_WritePin(FSBB_UI_LED_OUTPUT_GPIO, FSBB_UI_LED_INACTIVE_LEVEL);
+
+    fsbb_configure_complementary_pwm_leg(PHASE_BUCK_BASE);
+    fsbb_configure_complementary_pwm_leg(PHASE_BOOST_BASE);
 
     // ---------------------------------------------------------
     // 1. Initialize Input Voltage ADC Channel (V_in)

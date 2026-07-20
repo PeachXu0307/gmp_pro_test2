@@ -128,7 +128,6 @@ GMP_STATIC_INLINE ctrl_gt ctl_step_fsbb_voltage_cascade_aw(void)
     if (((dcdc_core.v_out_formal >= dcdc_core.current_pid.out_max) && (error_v > float2ctrl(0.0f))) ||
         ((dcdc_core.v_out_formal <= dcdc_core.current_pid.out_min) && (error_v < float2ctrl(0.0f))))
     {
-        ctl_pid_clamping_correction_using_real_output(&dcdc_core.voltage_pid, dcdc_core.filter_i_L.out);
         dcdc_core.is_current_dominant = 1;
     }
 
