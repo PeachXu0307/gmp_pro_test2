@@ -37,6 +37,7 @@ volatile fast_gt flag_enable_adc_calibrator = 0;
 volatile fast_gt index_adc_calibrator = 0;
 volatile uint16_t g_fsbb_faults = FSBB_FAULT_NONE;
 volatile fast_gt g_fsbb_output_enabled = 0;
+volatile uint16_t g_fsbb_startup_settle_count = 0U;
 
 // User commands
 ctrl_gt g_v_out_ref_user = float2ctrl(FSBB_DEFAULT_OUTPUT_VOLTAGE);
@@ -260,6 +261,7 @@ void ctl_enable_pwm(void)
     if (g_fsbb_faults == FSBB_FAULT_NONE)
     {
         ctl_fast_enable_output();
+        g_fsbb_startup_settle_count = FSBB_STARTUP_SETTLE_CYCLES;
         /* ctl_fast_enable_output() clears all ramps and controllers. Replace
            the pre-enable compare values in the same outgoing SIL frame so
            the power stage starts from the configured zero-command duty. */
@@ -271,5 +273,6 @@ void ctl_enable_pwm(void)
 void ctl_disable_pwm(void)
 {
     ctl_fast_disable_output();
+    g_fsbb_startup_settle_count = 0U;
     g_fsbb_output_enabled = 0;
 }

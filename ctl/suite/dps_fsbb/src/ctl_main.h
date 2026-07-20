@@ -63,6 +63,11 @@ typedef enum _tag_fsbb_fault
 
 extern volatile uint16_t g_fsbb_faults;
 extern volatile fast_gt g_fsbb_output_enabled;
+extern volatile uint16_t g_fsbb_startup_settle_count;
+
+#ifndef FSBB_STARTUP_SETTLE_CYCLES
+#define FSBB_STARTUP_SETTLE_CYCLES ((uint16_t)(CONTROLLER_FREQUENCY / 10.0f))
+#endif
 
 void ctl_init(void);
 void ctl_mainloop(void);
@@ -151,6 +156,23 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
 
     if (g_fsbb_faults != FSBB_FAULT_NONE)
         return;
+
+    if (g_fsbb_startup_settle_count != 0U)
+    {
+        ctl_dcdc_internal_ingest_and_filter(&dcdc_core);
+        v_req = float2ctrl(0.0f);
+        ctl_step_fsbb_modulator(&fsbb_mod, v_req, adc_v_in.control_port.value);
+
+        g_fsbb_startup_settle_count--;
+        if (g_fsbb_startup_settle_count == 0U)
+        {
+            ctl_set_slope_limiter_current(&dcdc_core.ramp_v, dcdc_core.filter_v_out.out);
+            ctl_set_slope_limiter_current(&dcdc_core.ramp_i, dcdc_core.filter_i_load.out);
+            dcdc_core.v_ramp_ref = dcdc_core.filter_v_out.out;
+            dcdc_core.i_ramp_ref = dcdc_core.filter_i_load.out;
+        }
+        return;
+    }
 
     {
         static uint16_t last_control_mode = FSBB_CONTROL_MODE_CV;
