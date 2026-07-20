@@ -128,7 +128,7 @@ void ctl_init(void)
     ctl_attach_dcdc_core(&dcdc_core, &adc_v_in.control_port, &adc_v_out.control_port, &adc_i_L.control_port,
                          &adc_i_load.control_port);
 
-    v_req = float2ctrl(FSBB_OPEN_LOOP_VOLTAGE_COMMAND / CTRL_VOLTAGE_BASE);
+    v_req = ctl_div(g_v_out_ref_user, float2ctrl(CTRL_VOLTAGE_BASE));
 
     //
     // init FSBB PWM modulator

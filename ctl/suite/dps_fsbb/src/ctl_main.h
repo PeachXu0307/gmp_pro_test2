@@ -213,7 +213,9 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
                               float2ctrl(0.0f));
             ctl_set_pid_int_limit(&dcdc_core.current_pid, float2ctrl(FSBB_CONTROL_VOLTAGE_CMD_MAX / CTRL_VOLTAGE_BASE),
                                   float2ctrl(0.0f));
+
             v_req = ctl_step_fsbb_voltage_cascade_aw();
+            //v_req = v_target;
         }
     }
 
