@@ -55,6 +55,9 @@ GMP_STATIC_INLINE void ctl_input_callback(void)
     ctl_step_ptr_adc_channel(&udc);
 }
 
+extern ctrl_gt dac1;
+extern ctrl_gt dac2;
+
 // Output Callback
 GMP_STATIC_INLINE void ctl_output_callback(void)
 {
@@ -97,8 +100,11 @@ GMP_STATIC_INLINE void ctl_output_callback(void)
     //    DAC_setShadowValue(IRIS_DACA_BASE, iabc.control_port.value.dat[phase_C] * 2048 + 2048);
     //    DAC_setShadowValue(IRIS_DACB_BASE, iuvw.control_port.value.dat[phase_C] * 2048 + 2048);
 
-    DAC_setShadowValue(IRIS_DACA_BASE, iabc.control_port.value.dat[phase_C] * 2048 + 2048);
-    DAC_setShadowValue(IRIS_DACB_BASE, iuvw.control_port.value.dat[phase_C] * 2048 + 2048);
+//    DAC_setShadowValue(IRIS_DACA_BASE, iabc.control_port.value.dat[phase_C] * 2048 + 2048);
+//    DAC_setShadowValue(IRIS_DACB_BASE, iuvw.control_port.value.dat[phase_C] * 2048 + 2048);
+
+    DAC_setShadowValue(IRIS_DACA_BASE, dac1 * 2048 + 2048);
+    DAC_setShadowValue(IRIS_DACB_BASE, dac1 * 2048 + 2048);
 
     // grid voltage and inverter voltage
     //    DAC_setShadowValue(IRIS_DACB_BASE, uuvw.control_port.value.dat[phase_C] * 2048 + 2048);Zq
@@ -111,8 +117,14 @@ GMP_STATIC_INLINE void ctl_output_callback(void)
 
 #elif BUILD_LEVEL == 2
 
-    DAC_setShadowValue(IRIS_DACA_BASE, inv_ctrl.vab0.dat[phase_A] * 2048 + 2048);
-    DAC_setShadowValue(IRIS_DACB_BASE, inv_ctrl.pll.srf_pll.phasor.dat[phasor_cos] * 2048 + 2048);
+    DAC_setShadowValue(IRIS_DACA_BASE, (uint16_t)(inv_ctrl.idq.dat[phase_d] * 2048.0f + 2048.0f));
+    DAC_setShadowValue(IRIS_DACB_BASE, (uint16_t)(inv_ctrl.idq_set.dat[phase_d] * 2048.0f + 2048.0f));
+
+//    DAC_setShadowValue(IRIS_DACA_BASE, inv_ctrl.iabc.dat[phase_A] * 2048 + 2048);
+//    DAC_setShadowValue(IRIS_DACB_BASE, inv_ctrl.iabc.dat[phase_B] * 2048 + 2048);
+
+//    DAC_setShadowValue(IRIS_DACA_BASE, dac1 * 2048 + 2048);
+//    DAC_setShadowValue(IRIS_DACB_BASE, dac1 * 2048 + 2048);
 
 #elif BUILD_LEVEL == 3
 

@@ -294,6 +294,48 @@
     <ClCompile Include="xplt\xplt.peripheral.cpp">
       <Filter>implement_interface</Filter>
     </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\crc16.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\ctl_dp_sinv_core.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\ctl_dp_sinv_protect.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\ctl_dp_sinv_rc_core.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\ctl_dp_sms_pq.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\ctl_dp_spfc.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\ctl_dp_spll_sogi.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\ctl_dp_spll_sogi_dc.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\ctl_sinv_ref_gen.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\gmp_datalink.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\gmp_mem_presp.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\gmp_pil_core.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\gmp_tunable.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="gmp_src_mgr\gmp_src\ctl_prot_pt100x.c">
+      <Filter>implement_interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ctl_main.h">

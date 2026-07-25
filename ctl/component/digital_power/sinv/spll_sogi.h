@@ -60,6 +60,9 @@ typedef struct _tag_single_phase_pll
 
     /*-- Parameters --*/
     ctrl_gt freq_sf; /**< Scaling factor to convert per-unit frequency to per-step phase increment. */
+    ctrl_gt v_mag_norm_min; /**< Lower bound used to normalize the phase detector. */
+    ctrl_gt frequency_min;  /**< Minimum VCO frequency in per-unit. */
+    ctrl_gt frequency_max;  /**< Maximum VCO frequency in per-unit. */
 
     /*-- Submodules --*/
     discrete_sogi_t sogi;            /**< The SOGI-based orthogonal signal generator. */
@@ -91,6 +94,9 @@ void ctl_init_single_phase_pll(ctl_single_phase_pll* spll, parameter_gt gain, pa
  */
 void ctl_init_single_phase_pll_T(ctl_single_phase_pll* spll, parameter_gt gain, parameter_gt Ti, parameter_gt fc,
                                  parameter_gt fg, parameter_gt fs);
+
+void ctl_set_single_phase_pll_limits(ctl_single_phase_pll* spll, parameter_gt v_mag_norm_min,
+                                     parameter_gt frequency_min_pu, parameter_gt frequency_max_pu);
 
 /**
  * @brief Clears the internal states of the PLL.
@@ -143,12 +149,15 @@ GMP_STATIC_INLINE void ctl_step_single_phase_pll(ctl_single_phase_pll* spll, ctr
     spll->v_mag = spll->udq.dat[phase_d];
 
     // 5. Loop Filter: PI controller drives the q-axis component (phase error) to zero.
-    ctl_step_lowpass_filter(&spll->filter_uq, spll->udq.dat[phase_q]);
+    ctrl_gt v_norm = ctl_abs(spll->v_mag);
+    if (v_norm < spll->v_mag_norm_min)
+        v_norm = spll->v_mag_norm_min;
+    ctl_step_lowpass_filter(&spll->filter_uq, ctl_div(spll->udq.dat[phase_q], v_norm));
     spll->freq_error = ctl_step_pid_ser(&spll->spll_ctrl, ctl_get_lowpass_filter_result(&spll->filter_uq));
 
     // 6. Voltage-Controlled Oscillator (VCO)
     // The nominal frequency (1.0 p.u.) is adjusted by the error from the loop filter.
-    spll->frequency = float2ctrl(1) + spll->freq_error;
+    spll->frequency = ctl_sat(float2ctrl(1) + spll->freq_error, spll->frequency_max, spll->frequency_min);
 
     // Integrate the frequency to get the new phase angle, and warp.
     spll->theta = ctrl_mod_1(spll->theta + ctl_mul(spll->frequency, spll->freq_sf));

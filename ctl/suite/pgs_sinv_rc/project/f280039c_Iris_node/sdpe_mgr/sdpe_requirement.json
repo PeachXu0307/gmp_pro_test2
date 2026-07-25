@@ -18,7 +18,7 @@
     }
   ],
   "code_sections": {
-    "after_extern_open": "/* Original ctrl_settings.h includes are intentionally ignored during this SDPE migration trial. */",
+    "after_extern_open": "#include <sdpe_pgs_sinv_rc_common_settings.h>",
     "before_footer": "/* Compatibility with framework revisions that use the historical misspelling. */\n#if defined(ENABLE_GMP_DL_PIL_SIM) && !defined(ENBALE_GMP_DL_PIL_SIM)\n#define ENBALE_GMP_DL_PIL_SIM\n#endif\n#if defined(ENBALE_GMP_DL_PIL_SIM) && !defined(ENABLE_GMP_DL_PIL_SIM)\n#define ENABLE_GMP_DL_PIL_SIM\n#endif"
   },
   "feature_macros": [
@@ -56,14 +56,16 @@
       "group": "Control Mode",
       "macro": "BUILD_LEVEL",
       "enabled": true,
-      "value": "(1)",
+      "value": "(5)",
       "options_preset": "",
       "options": [
         "(1)",
         "(2)",
-        "(3)"
+        "(3)",
+        "(4)",
+        "(5)"
       ],
-      "description": "Single-phase inverter incremental debug build level.\nBUILD_LEVEL 1: modulator and resistive-load validation.\nBUILD_LEVEL 2: voltage closed-loop validation.\nBUILD_LEVEL 3: current-loop and full controller validation."
+      "description": "1 open-loop R load; 2 current-loop R load; 3 signed grid P/Q current loop; 4 grid power loop; 5 DC-bus rectifier loop."
     },
     {
       "group": "PWM Modulator",
@@ -249,7 +251,7 @@
       "role": "dc_bus_voltage",
       "macro": "CTRL_DCBUS_VOLTAGE",
       "binding": {
-        "float": "60.0"
+        "float": "72.0"
       },
       "description": "Rated DC bus voltage."
     },
@@ -257,9 +259,9 @@
       "role": "grid_voltage_rms",
       "macro": "CTRL_GRID_VOLTAGE_RMS",
       "binding": {
-        "float": "24.0"
+        "float": "36.0"
       },
-      "description": "Rated AC grid/load RMS voltage."
+      "description": "Nominal point inside the required 29 V to 43 V AC input range."
     },
     {
       "role": "rated_current_rms",
@@ -273,9 +275,9 @@
       "role": "voltage_base",
       "macro": "CTRL_VOLTAGE_BASE",
       "binding": {
-        "float": "34.0"
+        "float": "60.8112"
       },
-      "description": "Voltage per-unit base, using peak value."
+      "description": "Peak-voltage per-unit base corresponding to 43 Vrms."
     },
     {
       "role": "current_base",
@@ -284,14 +286,6 @@
         "float": "14.14"
       },
       "description": "Current per-unit base, using peak value."
-    },
-    {
-      "role": "grid_frequency",
-      "macro": "CTRL_GRID_FREQUENCY",
-      "binding": {
-        "float": "50.0"
-      },
-      "description": "Nominal AC grid/fundamental frequency in Hz."
     },
     {
       "role": "ac_inductance",
@@ -308,86 +302,6 @@
         "float": "0.1"
       },
       "description": "Total AC-side series resistance in Ohm."
-    },
-    {
-      "role": "pll_kp",
-      "macro": "CTRL_PLL_KP",
-      "binding": {
-        "float": "10.0"
-      },
-      "description": "Single-phase PLL proportional gain."
-    },
-    {
-      "role": "pll_ti",
-      "macro": "CTRL_PLL_TI",
-      "binding": {
-        "float": "0.02"
-      },
-      "description": "Single-phase PLL integral time constant in seconds."
-    },
-    {
-      "role": "pll_lpf_fc",
-      "macro": "CTRL_PLL_LPF_FC",
-      "binding": {
-        "float": "20.0"
-      },
-      "description": "PLL q-axis error low-pass cutoff in Hz."
-    },
-    {
-      "role": "pq_lpf_fc",
-      "macro": "CTRL_PQ_LPF_FC",
-      "binding": {
-        "float": "200.0"
-      },
-      "description": "Measured active/reactive power low-pass cutoff in Hz."
-    },
-    {
-      "role": "current_limit_pu",
-      "macro": "CTRL_CURRENT_LIMIT_PU",
-      "binding": {
-        "float": "1.5"
-      },
-      "description": "Peak current-reference limit in per unit."
-    },
-    {
-      "role": "grid_vmin_pu",
-      "macro": "CTRL_GRID_VMIN_PU",
-      "binding": {
-        "float": "0.1"
-      },
-      "description": "Minimum PLL voltage magnitude used by P/Q reference division."
-    },
-    {
-      "role": "p_slew_pu_s",
-      "macro": "CTRL_P_SLEW_PU_S",
-      "binding": {
-        "float": "10.0"
-      },
-      "description": "Active-power command slew limit in PU/s."
-    },
-    {
-      "role": "q_slew_pu_s",
-      "macro": "CTRL_Q_SLEW_PU_S",
-      "binding": {
-        "float": "20.0"
-      },
-      "description": "Reactive-power command slew limit in PU/s."
-    },
-    {
-      "role": "current_deadband_pu",
-      "macro": "CTRL_CURRENT_DB_PU",
-      "binding": {
-        "float": "0.01"
-      },
-      "description": "Current polarity deadband for PWM dead-time compensation."
-    },
-    {
-      "role": "fdrc_min_frequency",
-      "macro": "CTRL_FDRC_MIN_FREQ",
-      "binding": {
-        "float": "45.0"
-      },
-      "description": "Minimum fundamental frequency tracked by the repetitive controller in Hz."
     },
     {
       "role": "ac_voltage_sensitivity",
@@ -481,9 +395,9 @@
       "role": "dc_bus_ready_min",
       "macro": "CTRL_DCBUS_READY_MIN",
       "binding": {
-        "literal": "(CTRL_DCBUS_VOLTAGE * 0.8f)"
+        "literal": "(CTRL_GRID_VOLTAGE_RMS_MIN * 1.2f)"
       },
-      "description": "Minimum physical DC-bus voltage accepted by the startup state machine."
+      "description": "Minimum precharged DC bus accepted before active boost takeover."
     },
     {
       "role": "dc_bus_ready_max",
@@ -500,14 +414,6 @@
         "number": "3000"
       },
       "description": "ADC calibration timeout in ms."
-    },
-    {
-      "role": "spll_epsilon",
-      "macro": "CTRL_SPLL_EPSILON",
-      "binding": {
-        "literal": "((float2ctrl(0.005)))"
-      },
-      "description": "SPLL close-loop convergence criterion."
     }
   ],
   "requirement_groups": [
@@ -562,7 +468,6 @@
     {
       "name": "Protection Parameters",
       "requirements": [
-        "grid_vmin_pu",
         "max_hw_voltage",
         "max_hw_current",
         "protection_vbus_max",
@@ -575,29 +480,13 @@
     {
       "name": "Control Loop Parameters",
       "requirements": [
-        "pll_kp",
-        "pll_ti",
-        "pll_lpf_fc",
-        "pq_lpf_fc",
-        "current_limit_pu",
-        "p_slew_pu_s",
-        "q_slew_pu_s",
-        "current_deadband_pu",
-        "fdrc_min_frequency",
-        "adc_calibration_timeout",
-        "spll_epsilon"
+        "adc_calibration_timeout"
       ]
     },
     {
       "name": "Runtime Parameters",
       "requirements": [
         "startup_delay"
-      ]
-    },
-    {
-      "name": "Default Parameters",
-      "requirements": [
-        "grid_frequency"
       ]
     }
   ]

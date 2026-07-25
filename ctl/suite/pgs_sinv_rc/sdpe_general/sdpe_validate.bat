@@ -9,7 +9,7 @@ if not defined GMP_PRO_LOCATION (
 call "%GMP_PRO_LOCATION%\tools\gmp_installer\ensure_gmp_environment.bat"
 if errorlevel 1 exit /b 1
 
-title SDPE Project Header Generator
+title SDPE Project Validator
 cd /d "%~dp0"
 call "%~dp0sdpe_settings.bat"
 if errorlevel 1 (
@@ -18,11 +18,8 @@ if errorlevel 1 (
 )
 
 echo =======================================================
-echo [SDPE] Generating project SDPE headers...
+echo [SDPE] Validating SDPE library and project requirement...
 echo =======================================================
-echo [SDPE] Settings   : %SDPE_SETTINGS%
-echo [SDPE] Requirement: %SDPE_REQUIREMENT%
-echo [SDPE] Output     : %SDPE_OUT%
 
 python "%GMP_PRO_LOCATION%\tools\SDPE_v2\sdpe.py" --settings "%SDPE_SETTINGS%" validate
 if errorlevel 1 (
@@ -30,24 +27,14 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-python "%GMP_PRO_LOCATION%\tools\SDPE_v2\sdpe.py" --settings "%SDPE_SETTINGS%" generate-project-local "%SDPE_REQUIREMENT%" --project-dir "%~dp0." --out "%SDPE_OUT%"
+python "%GMP_PRO_LOCATION%\tools\SDPE_v2\sdpe.py" --settings "%SDPE_SETTINGS%" inspect-project "%SDPE_REQUIREMENT%"
 if errorlevel 1 (
-    echo.
-    echo [ERROR] SDPE project generation failed. Error code: %ERRORLEVEL%
     pause
-    exit /b %ERRORLEVEL%
-)
-
-python "%GMP_PRO_LOCATION%\tools\SDPE_v2\sdpe.py" --settings "%SDPE_SETTINGS%" generate-project-matlab-local "%SDPE_REQUIREMENT%" --project-dir "%~dp0." --out "%SDPE_MATLAB_OUT%"
-if errorlevel 1 (
-    echo.
-    echo [ERROR] SDPE MATLAB initialization generation failed. Error code: %ERRORLEVEL%
-    pause
-    exit /b %ERRORLEVEL%
+    exit /b %errorlevel%
 )
 
 echo.
 echo =======================================================
-echo [SUCCESS] SDPE project headers generated successfully.
+echo [SUCCESS] SDPE project requirement is readable.
 echo =======================================================
 exit /b 0

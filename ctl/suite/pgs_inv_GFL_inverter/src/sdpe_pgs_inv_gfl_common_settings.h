@@ -102,6 +102,12 @@ extern "C"
 #define GFL_PQ_LOOP_DIVIDER ((uint32_t)(CONTROLLER_FREQUENCY / GFL_PQ_LOOP_FREQUENCY_HZ))
 
 /**
+ * @brief Grid-current ADC low-pass cutoff frequency in hertz.
+ *        Lower this value to suppress more switching ripple; raise it if current-loop response becomes too slow.
+ */
+#define GFL_CURRENT_ADC_FILTER_FC_HZ (100.0f)
+
+/**
  * @brief Active-power loop proportional gain from P error PU to d-axis current PU.
  */
 #define GFL_PQ_ACTIVE_KP (0.75f)
@@ -124,12 +130,12 @@ extern "C"
 /**
  * @brief Circular magnitude limit applied to the d/q current reference produced by the P/Q loop.
  */
-#define GFL_PQ_CURRENT_LIMIT_PU (1.0f)
+#define GFL_PQ_CURRENT_LIMIT_PU (0.05f)
 
 /**
  * @brief Default active-power reference. Positive power exports energy to the grid.
  */
-#define GFL_ACTIVE_POWER_REF_PU (0.1f)
+#define GFL_ACTIVE_POWER_REF_PU (0.002f)
 
 /**
  * @brief Default reactive-power reference using Q = vq*id - vd*iq.
@@ -139,12 +145,14 @@ extern "C"
 /**
  * @brief BUILD_LEVEL 1 d-axis open-loop voltage command.
  */
-#define GFL_OPEN_LOOP_VD_PU (0.6f)
+//#define GFL_OPEN_LOOP_VD_PU (0.6f)
+#define GFL_OPEN_LOOP_VD_PU (0.5f)
 
 /**
  * @brief BUILD_LEVEL 1 q-axis open-loop voltage command.
  */
-#define GFL_OPEN_LOOP_VQ_PU (0.6f)
+//#define GFL_OPEN_LOOP_VQ_PU (0.6f)
+#define GFL_OPEN_LOOP_VQ_PU (0.0f)
 
 /**
  * @brief BUILD_LEVEL 2 d-axis current command.
@@ -154,12 +162,12 @@ extern "C"
 /**
  * @brief BUILD_LEVEL 2 q-axis current command.
  */
-#define GFL_CURRENT_LEVEL2_IQ_PU (0.1f)
+#define GFL_CURRENT_LEVEL2_IQ_PU (0.0f)
 
 /**
  * @brief BUILD_LEVEL 3 grid-connected d-axis current command.
  */
-#define GFL_CURRENT_LEVEL3_ID_PU (0.1f)
+#define GFL_CURRENT_LEVEL3_ID_PU (0.01f)
 
 /**
  * @brief BUILD_LEVEL 3 grid-connected q-axis current command.
@@ -169,12 +177,12 @@ extern "C"
 /**
  * @brief BUILD_LEVEL 4 d-axis current command.
  */
-#define GFL_CURRENT_LEVEL4_ID_PU (0.6f)
+#define GFL_CURRENT_LEVEL4_ID_PU (0.01f)
 
 /**
  * @brief BUILD_LEVEL 4 q-axis current command.
  */
-#define GFL_CURRENT_LEVEL4_IQ_PU (0.6f)
+#define GFL_CURRENT_LEVEL4_IQ_PU (0.0f)
 
 /**
  * @brief ADC offset calibrator filter cutoff frequency.

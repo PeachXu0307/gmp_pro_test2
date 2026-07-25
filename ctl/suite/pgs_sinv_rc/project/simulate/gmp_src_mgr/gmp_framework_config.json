@@ -95,6 +95,10 @@
         },
         {
             "root": "ctl",
+            "module": "component|digital_power|sinv|sinv_outer_loop"
+        },
+        {
+            "root": "ctl",
             "module": "component|digital_power|sinv|sms_pq"
         },
         {

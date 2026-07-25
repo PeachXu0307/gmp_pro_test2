@@ -43,7 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -60,23 +60,23 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\..\..\csp\windows_simulink\GMPCorePropertySheet.props" />
-    <Import Project="..\..\..\..\..\tools\facilities_generator\GMPSrcGenPropertySheet.props" />
+    <Import Project="..\..\..\..\..\..\csp\windows_simulink\GMPCorePropertySheet.props" />
+    <Import Project="..\..\..\..\..\..\tools\facilities_generator\GMPSrcGenPropertySheet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\..\..\csp\windows_simulink\GMPCorePropertySheet.props" />
-    <Import Project="..\..\..\..\..\tools\facilities_generator\GMPSrcGenPropertySheet.props" />
+    <Import Project="..\..\..\..\..\..\csp\windows_simulink\GMPCorePropertySheet.props" />
+    <Import Project="..\..\..\..\..\..\tools\facilities_generator\GMPSrcGenPropertySheet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\..\..\csp\windows_simulink\GMPCorePropertySheet.props" />
-    <Import Project="..\..\..\..\..\tools\facilities_generator\GMPSrcGenPropertySheet.props" />
+    <Import Project="..\..\..\..\..\..\csp\windows_simulink\GMPCorePropertySheet.props" />
+    <Import Project="..\..\..\..\..\..\tools\facilities_generator\GMPSrcGenPropertySheet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\..\..\csp\windows_simulink\GMPCorePropertySheet.props" />
-    <Import Project="..\..\..\..\..\tools\facilities_generator\GMPSrcGenPropertySheet.props" />
+    <Import Project="..\..\..\..\..\..\csp\windows_simulink\GMPCorePropertySheet.props" />
+    <Import Project="..\..\..\..\..\..\tools\facilities_generator\GMPSrcGenPropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

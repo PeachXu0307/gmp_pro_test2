@@ -20,9 +20,9 @@ extern "C"
 #include <sdpe_pgs_inv_gfl_common_settings.h>
 
 /* Existing IRIS SysConfig resource names assigned to GFL application roles. */
-#define PHASE_U_BASE IRIS_EPWM1_BASE
-#define PHASE_V_BASE IRIS_EPWM2_BASE
-#define PHASE_W_BASE IRIS_EPWM3_BASE
+#define PHASE_U_BASE IRIS_EPWM2_BASE
+#define PHASE_V_BASE IRIS_EPWM3_BASE
+#define PHASE_W_BASE IRIS_EPWM4_BASE
 #define PWM_ENABLE_PORT IRIS_GPIO1
 #define PWM_RESET_PORT IRIS_GPIO3
 #define INV_UA_RESULT_BASE ADC_CH1_RESULT_BASE
@@ -64,7 +64,7 @@ extern "C"
 #define PGS_INV_GFL_IRIS_SDPE_PROJECT_ID "pgs_inv_gfl_f280039c_iris_node"
 #define PGS_INV_GFL_IRIS_SDPE_PROJECT_SUITE "pgs_inv_GFL_inverter"
 #define PGS_INV_GFL_IRIS_SDPE_PROJECT_VERSION "1.0.0"
-#define PGS_INV_GFL_IRIS_SDPE_PROJECT_UPDATED_AT "2026-07-15"
+#define PGS_INV_GFL_IRIS_SDPE_PROJECT_UPDATED_AT "2026-07-25"
 
 //=================================================================================================
 /**
@@ -85,7 +85,7 @@ extern "C"
  * @brief Incremental control level; level 5 enables the cascaded P/Q power loop.
  *        Options: (1), (2), (3), (4), (5)
  */
-#define BUILD_LEVEL (3)
+#define BUILD_LEVEL (2)
 
 //=================================================================================================
 /**
@@ -108,11 +108,6 @@ extern "C"
 /**
  * @brief Requirement bindings.
  */
-
-/**
- * @brief Startup delay in milliseconds.
- */
-#define CTRL_STARTUP_DELAY (100)
 
 /**
  * @brief Current-loop and PWM update frequency in hertz.
@@ -170,14 +165,14 @@ extern "C"
 #define GFL_GRID_FILTER_CAPACITANCE_F (HARMONIA_3PH_LC_FILTER_CAPACITANCE_F)
 
 /**
- * @brief Grid-current sensitivity in volts per ampere.
+ * @brief DC-link voltage sensing gain.
  */
-#define CTRL_GRID_CURRENT_SENSITIVITY (HARMONIA_3PH_LC_FILTER_PH_CURRENT_SENSITIVITY_MV_A * 0.001f)
+#define CTRL_DC_VOLTAGE_SENSITIVITY (0.02738589f)
 
 /**
- * @brief Grid-current zero bias.
+ * @brief DC-link voltage sensing bias.
  */
-#define CTRL_GRID_CURRENT_BIAS (HARMONIA_3PH_LC_FILTER_PH_CURRENT_ZERO_BIAS_V)
+#define CTRL_DC_VOLTAGE_BIAS (0.0f)
 
 /**
  * @brief Grid-voltage sensing gain.
@@ -188,16 +183,6 @@ extern "C"
  * @brief Grid-voltage sensing bias.
  */
 #define CTRL_GRID_VOLTAGE_BIAS (HARMONIA_3PH_LC_FILTER_PH_VOLTAGE_SENSE_BIAS_V)
-
-/**
- * @brief Validated Helios phase-current sensitivity in volts per ampere.
- */
-#define CTRL_INVERTER_CURRENT_SENSITIVITY (0.05f)
-
-/**
- * @brief Helios phase-current zero bias.
- */
-#define CTRL_INVERTER_CURRENT_BIAS (1.65f)
 
 /**
  * @brief Helios phase-voltage sensing gain.
@@ -220,14 +205,29 @@ extern "C"
 #define CTRL_DC_CURRENT_BIAS (1.65f)
 
 /**
- * @brief DC-link voltage sensing gain.
+ * @brief Grid-current sensitivity in volts per ampere.
  */
-#define CTRL_DC_VOLTAGE_SENSITIVITY (0.02738589f)
+#define CTRL_GRID_CURRENT_SENSITIVITY (HARMONIA_3PH_LC_FILTER_PH_CURRENT_SENSITIVITY_MV_A * 0.001f)
 
 /**
- * @brief DC-link voltage sensing bias.
+ * @brief Grid-current zero bias.
  */
-#define CTRL_DC_VOLTAGE_BIAS (0.0f)
+#define CTRL_GRID_CURRENT_BIAS (HARMONIA_3PH_LC_FILTER_PH_CURRENT_ZERO_BIAS_V)
+
+/**
+ * @brief Validated Helios phase-current sensitivity in volts per ampere.
+ */
+#define CTRL_INVERTER_CURRENT_SENSITIVITY (0.05f)
+
+/**
+ * @brief Helios phase-current zero bias.
+ */
+#define CTRL_INVERTER_CURRENT_BIAS (1.65f)
+
+/**
+ * @brief Startup delay in milliseconds.
+ */
+#define CTRL_STARTUP_DELAY (100)
 
 // User project tail code
 #if (BUILD_LEVEL < 1) || (BUILD_LEVEL > 5)

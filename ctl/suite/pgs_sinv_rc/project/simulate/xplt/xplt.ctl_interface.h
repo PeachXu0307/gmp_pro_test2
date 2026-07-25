@@ -34,13 +34,13 @@ GMP_STATIC_INLINE void ctl_output_callback(void)
     simulink_tx_buffer.monitor[6] = ctrl2float(pq_meter.active_power_p);
     simulink_tx_buffer.monitor[7] = ctrl2float(pq_meter.reactive_power_q);
     simulink_tx_buffer.monitor[8] = ctrl2float(rc_core.current_error);
-    simulink_tx_buffer.monitor[9] = ctrl2float(rc_core.u_qpr);
-    simulink_tx_buffer.monitor[10] = ctrl2float(rc_core.u_fdrc);
-    simulink_tx_buffer.monitor[11] = (double)rc_core.flag_enable_fdrc;
+    simulink_tx_buffer.monitor[9] = ctrl2float(rc_core.u_qpr_base);
+    simulink_tx_buffer.monitor[10] = ctrl2float(rc_core.u_qpr_harm);
+    simulink_tx_buffer.monitor[11] = (double)rc_core.flag_enable_harm_ctrl;
     simulink_tx_buffer.monitor[12] = (double)cia402_sm.current_state;
     simulink_tx_buffer.monitor[13] = (double)cia402_sm.current_cmd;
     simulink_tx_buffer.monitor[14] = (double)protection.active_errors;
-    simulink_tx_buffer.monitor[15] = ctrl2float(protection.node_ctrl_diverge.fault_record_val);
+    simulink_tx_buffer.monitor[15] = ctrl2float(pll.v_mag);
     if (g_sinv_sim_enable_pending) {
         csp_sl_enable_output();
         g_sinv_sim_enable_pending = 0;
@@ -49,7 +49,9 @@ GMP_STATIC_INLINE void ctl_output_callback(void)
 
 GMP_STATIC_INLINE void ctl_fast_enable_output(void)
 {
-    clear_all_controllers();
+    /* Preserve the PLL/PQ states that were established during CiA402 grid
+       synchronization; only reset power-stage histories before enabling PWM. */
+    clear_power_stage_controllers();
     g_sinv_sim_enable_pending = 1;
 }
 

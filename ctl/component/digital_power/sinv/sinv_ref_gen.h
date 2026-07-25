@@ -188,6 +188,35 @@ GMP_STATIC_INLINE ctrl_gt ctl_step_sinv_ref_gen_p_phi(ctl_sinv_ref_gen_t* gen, c
     return ctl_step_sinv_ref_gen_pq(gen, p_ref, q_ref, v_mag, phasor);
 }
 
+/**
+ * @brief Overload 3: Generates current ref based on Active Power (P) and power factor.
+ *
+ * @param[in,out] gen Pointer to the generator instance.
+ * @param[in] p_ref Target active power.
+ * @param[in] power_factor Target absolute power factor.
+ * @param[in] power_factor_min Minimum accepted absolute power factor.
+ * @param[in] reactive_power_sign Sign of reactive power command.
+ * @param[in] v_mag Grid voltage magnitude.
+ * @param[in] phasor Pointer to the synchronized grid phasor.
+ * @return ctrl_gt The instantaneous AC current reference.
+ */
+GMP_STATIC_INLINE ctrl_gt ctl_step_sinv_ref_gen_p_pf(ctl_sinv_ref_gen_t* gen, ctrl_gt p_ref, ctrl_gt power_factor,
+                                                     ctrl_gt power_factor_min, ctrl_gt reactive_power_sign,
+                                                     ctrl_gt v_mag, const ctl_vector2_t* phasor)
+{
+    ctrl_gt pf = ctl_abs(power_factor);
+    pf = ctl_sat(pf, CTL_CTRL_CONST_1, power_factor_min);
+
+    ctrl_gt one_minus_pf_sq = CTL_CTRL_CONST_1 - ctl_mul(pf, pf);
+    if (one_minus_pf_sq < float2ctrl(0.0f))
+        one_minus_pf_sq = float2ctrl(0.0f);
+
+    ctrl_gt q_mag = ctl_mul(ctl_abs(p_ref), ctl_div(ctl_sqrt(one_minus_pf_sq), pf));
+    ctrl_gt q_ref = ctl_mul((reactive_power_sign >= float2ctrl(0.0f)) ? CTL_CTRL_CONST_1 : -CTL_CTRL_CONST_1, q_mag);
+
+    return ctl_step_sinv_ref_gen_pq(gen, p_ref, q_ref, v_mag, phasor);
+}
+
 #ifdef __cplusplus
 }
 #endif

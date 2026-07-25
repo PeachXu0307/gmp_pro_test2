@@ -34,6 +34,7 @@ GMP_STATIC_INLINE void ctl_input_callback(void)
     ctl_step_adc_channel(&adc_v_grid, ADC_readResult(INV_VAC_RESULT_BASE, INV_VAC));
     ctl_step_adc_channel(&adc_i_ac, ADC_readResult(INV_IAC_RESULT_BASE, INV_IAC));
     ctl_step_adc_channel(&adc_v_bus, ADC_readResult(INV_VBUS_RESULT_BASE, INV_VBUS));
+    ctl_update_adc_debug_mirrors();
 }
 
 // Output Callback
@@ -60,7 +61,9 @@ GMP_STATIC_INLINE void ctl_fast_enable_output(void)
     DINT;
 
     // Reset histories first and preload a zero differential-voltage command.
-    clear_all_controllers();
+    /* Preserve the PLL/PQ states that were established during CiA402 grid
+       synchronization; only reset power-stage histories before enabling PWM. */
+    clear_power_stage_controllers();
     EPWM_setCounterCompareValue(PHASE_L_BASE, EPWM_COUNTER_COMPARE_A,
                                 ctl_get_single_phase_modulation_L_phase(&hpwm));
     EPWM_setCounterCompareValue(PHASE_N_BASE, EPWM_COUNTER_COMPARE_A,
@@ -112,6 +115,7 @@ GMP_STATIC_INLINE void ctl_input_callback_pil(const gmp_sim_rx_buf_t* rx)
     ctl_step_adc_channel(&adc_v_bus, rx->adc_result[INV_ADC_ID_VBUS]);
     ctl_step_adc_channel(&adc_v_grid, rx->adc_result[INV_ADC_ID_VGRID]);
     ctl_step_adc_channel(&adc_i_ac, rx->adc_result[INV_ADC_ID_IAC]);
+    ctl_update_adc_debug_mirrors();
 }
 
 // Output Callback for PIL Simulation

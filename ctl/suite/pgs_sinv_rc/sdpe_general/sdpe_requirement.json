@@ -11,10 +11,10 @@
   "feature_macros": [
     {
       "group": "Control Features",
-      "macro": "SINV_ENABLE_REPETITIVE_CONTROL",
+      "macro": "SINV_ENABLE_FIXED_HARMONIC_COMPENSATION",
       "enabled": true,
       "value": "",
-      "description": "Enable delayed insertion of the frequency-adaptive repetitive controller."
+      "description": "Enable delayed insertion of the fixed-frequency harmonic QPR bank."
     },
     {
       "group": "Control Features",
@@ -40,6 +40,22 @@
         "float": "50.0"
       },
       "description": "Nominal grid frequency in Hz."
+    },
+    {
+      "role": "grid_voltage_min",
+      "macro": "CTRL_GRID_VOLTAGE_RMS_MIN",
+      "binding": {
+        "float": "28.0"
+      },
+      "description": "Lower admission threshold with sensing and line-drop margin around the 29 V operating requirement."
+    },
+    {
+      "role": "grid_voltage_max",
+      "macro": "CTRL_GRID_VOLTAGE_RMS_MAX",
+      "binding": {
+        "float": "44.0"
+      },
+      "description": "Upper admission threshold with sensing tolerance around the 43 V operating requirement."
     },
     {
       "role": "pll_kp",
@@ -72,6 +88,38 @@
         "float": "0.005"
       },
       "description": "PLL frequency-error lock threshold in PU."
+    },
+    {
+      "role": "pll_frequency_min",
+      "macro": "CTRL_PLL_FREQUENCY_MIN_HZ",
+      "binding": {
+        "float": "49.0"
+      },
+      "description": "Minimum permitted PLL/VCO frequency."
+    },
+    {
+      "role": "pll_frequency_max",
+      "macro": "CTRL_PLL_FREQUENCY_MAX_HZ",
+      "binding": {
+        "float": "51.0"
+      },
+      "description": "Maximum permitted PLL/VCO frequency."
+    },
+    {
+      "role": "pll_norm_vmin",
+      "macro": "CTRL_PLL_NORM_VMIN_PU",
+      "binding": {
+        "float": "0.18"
+      },
+      "description": "Minimum voltage magnitude used by the normalized SOGI-PLL phase detector."
+    },
+    {
+      "role": "pll_lock_hold",
+      "macro": "SINV_PLL_LOCK_HOLD_MS",
+      "binding": {
+        "number": "100"
+      },
+      "description": "Continuous in-range PLL duration required before PWM enable."
     },
     {
       "role": "pq_lpf",
@@ -125,57 +173,49 @@
       "role": "current_bandwidth",
       "macro": "SINV_CURRENT_LOOP_BANDWIDTH_HZ",
       "binding": {
-        "float": "600.0"
-      },
-      "description": "QPR current-loop crossover target in Hz."
-    },
-    {
-      "role": "fdrc_min_frequency",
-      "macro": "CTRL_FDRC_MIN_FREQ",
-      "binding": {
-        "float": "45.0"
-      },
-      "description": "Minimum fundamental tracked by FDRC in Hz."
-    },
-    {
-      "role": "fdrc_delay",
-      "macro": "SINV_FDRC_ENABLE_DELAY_MS",
-      "binding": {
-        "number": "300"
-      },
-      "description": "Settling time before repetitive control starts learning."
-    },
-    {
-      "role": "fdrc_gain",
-      "macro": "SINV_FDRC_LEARNING_GAIN",
-      "binding": {
-        "float": "0.10"
-      },
-      "description": "Repetitive-control learning gain."
-    },
-    {
-      "role": "fdrc_filter",
-      "macro": "SINV_FDRC_Q_FILTER_HZ",
-      "binding": {
         "float": "1000.0"
       },
-      "description": "FDRC robustness-filter cutoff frequency."
+      "description": "QPR current-loop crossover target; 1 kHz is 5 percent of the 20 kHz sample rate and retains digital-delay margin."
     },
     {
-      "role": "fdrc_lead",
-      "macro": "SINV_FDRC_LEAD_STEPS",
+      "role": "harmonic_qpr_bandwidth",
+      "macro": "SINV_HARMONIC_QPR_BANDWIDTH_HZ",
+      "binding": {
+        "float": "4.0"
+      },
+      "description": "Harmonic QPR bandwidth in Hz; wide enough for grid tolerance, narrow enough for selective damping."
+    },
+    {
+      "role": "harmonic_qpr_delay",
+      "macro": "SINV_HARMONIC_QPR_ENABLE_DELAY_MS",
+      "binding": {
+        "number": "600"
+      },
+      "description": "Settling time before fixed harmonic resonant compensators are inserted."
+    },
+    {
+      "role": "harmonic_qpr_gain_scale",
+      "macro": "SINV_HARMONIC_QPR_GAIN_SCALE",
+      "binding": {
+        "float": "0.15"
+      },
+      "description": "Fixed harmonic QPR output gain scale; keeps harmonic compensators corrective instead of dominant."
+    },
+    {
+      "role": "harmonic_qpr_max_order",
+      "macro": "SINV_HARMONIC_QPR_MAX_ORDER",
+      "binding": {
+        "number": "7"
+      },
+      "description": "Highest enabled fixed harmonic order; keep low-order compensation first for hardware robustness."
+    },
+    {
+      "role": "grid_feedforward_lead",
+      "macro": "SINV_GRID_FEEDFORWARD_LEAD_STEPS",
       "binding": {
         "float": "3.0"
       },
-      "description": "Plant-delay compensation in controller samples."
-    },
-    {
-      "role": "fdrc_error",
-      "macro": "SINV_FDRC_FREEZE_ERROR_PU",
-      "binding": {
-        "float": "0.05"
-      },
-      "description": "Current-error threshold above which RC learning is frozen."
+      "description": "Grid-voltage feedforward lead compensation in controller samples."
     },
     {
       "role": "openloop_voltage",
@@ -237,9 +277,9 @@
       "role": "bus_ref",
       "macro": "SINV_DC_BUS_REF_V",
       "binding": {
-        "float": "60.0"
+        "float": "72.0"
       },
-      "description": "BUILD_LEVEL 5 physical DC bus voltage target."
+      "description": "BUILD_LEVEL 5 DC bus target, with boost/modulation headroom above 43 Vrms peak."
     },
     {
       "role": "bus_kp",
@@ -256,6 +296,46 @@
         "float": "12.0"
       },
       "description": "DC-bus outer-loop integral gain per second."
+    },
+    {
+      "role": "bus_feedback_lpf",
+      "macro": "SINV_DC_BUS_FEEDBACK_LPF_HZ",
+      "binding": {
+        "float": "15.0"
+      },
+      "description": "DC-bus feedback LPF cutoff; rejects unavoidable 100 Hz single-phase ripple from the voltage PI."
+    },
+    {
+      "role": "bus_reference_slew",
+      "macro": "SINV_DC_BUS_REFERENCE_SLEW_V_S",
+      "binding": {
+        "float": "40.0"
+      },
+      "description": "DC-bus soft-start and setpoint slew limit in V/s."
+    },
+    {
+      "role": "power_factor_min",
+      "macro": "SINV_POWER_FACTOR_MIN",
+      "binding": {
+        "float": "0.10"
+      },
+      "description": "Minimum accepted displacement power-factor magnitude."
+    },
+    {
+      "role": "power_factor_default",
+      "macro": "SINV_POWER_FACTOR_DEFAULT",
+      "binding": {
+        "float": "1.0"
+      },
+      "description": "Safe unity-power-factor startup default for rectifier mode."
+    },
+    {
+      "role": "reactive_sign_default",
+      "macro": "SINV_REACTIVE_POWER_SIGN_DEFAULT",
+      "binding": {
+        "float": "1.0"
+      },
+      "description": "Default reactive-power direction; user interaction may command +1 or -1."
     },
     {
       "role": "outer_limit",
@@ -280,6 +360,22 @@
         "number": "100"
       },
       "description": "Minimum operation-enabled transition delay."
+    },
+    {
+      "role": "diverge_grace",
+      "macro": "SINV_CTRL_DIVERGE_GRACE_MS",
+      "binding": {
+        "number": "500"
+      },
+      "description": "Startup interval during which controller-divergence supervision is inhibited while OVP and OCP remain active."
+    },
+    {
+      "role": "fast_protect_valid_samples",
+      "macro": "SINV_FAST_PROTECT_VALID_SAMPLES",
+      "binding": {
+        "number": "20"
+      },
+      "description": "Consecutive in-range ADC samples required before software fast OVP/OCP is armed; hardware trip-zone protection remains independent."
     }
   ],
   "requirement_groups": [
@@ -296,23 +392,30 @@
         "pll_ti",
         "pll_lpf",
         "pll_epsilon",
+        "pll_frequency_min",
+        "pll_frequency_max",
+        "pll_norm_vmin",
+        "pll_lock_hold",
         "pq_lpf",
         "current_limit",
         "p_slew",
         "q_slew",
         "current_deadband",
         "current_bandwidth",
-        "fdrc_min_frequency",
-        "fdrc_delay",
-        "fdrc_gain",
-        "fdrc_filter",
-        "fdrc_lead",
-        "fdrc_error",
+        "harmonic_qpr_bandwidth",
+        "harmonic_qpr_delay",
+        "harmonic_qpr_gain_scale",
+        "harmonic_qpr_max_order",
+        "grid_feedforward_lead",
         "openloop_voltage",
         "power_kp",
         "power_ki",
         "bus_kp",
         "bus_ki",
+        "bus_feedback_lpf",
+        "power_factor_min",
+        "power_factor_default",
+        "reactive_sign_default",
         "outer_limit",
         "outer_frequency"
       ]
@@ -330,13 +433,17 @@
     {
       "name": "Runtime Parameters",
       "requirements": [
-        "startup_delay"
+        "startup_delay",
+        "diverge_grace",
+        "fast_protect_valid_samples"
       ]
     },
     {
       "name": "Default Parameters",
       "requirements": [
-        "grid_frequency"
+        "grid_frequency",
+        "grid_voltage_min",
+        "grid_voltage_max"
       ]
     }
   ]

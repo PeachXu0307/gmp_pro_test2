@@ -20,6 +20,7 @@ void ctl_init_single_phase_pll(ctl_single_phase_pll* spll, parameter_gt gain, pa
 
     // Pre-calculate the normalized grid frequency as a feed-forward term for the VCO.
     spll->freq_sf = float2ctrl(fg / fs);
+    ctl_set_single_phase_pll_limits(spll, 0.1f, 0.9f, 1.1f);
 }
 
 void ctl_init_single_phase_pll_T(ctl_single_phase_pll* spll, parameter_gt gain, parameter_gt ki, parameter_gt fc,
@@ -39,4 +40,24 @@ void ctl_init_single_phase_pll_T(ctl_single_phase_pll* spll, parameter_gt gain, 
 
     // Pre-calculate the normalized grid frequency as a feed-forward term for the VCO.
     spll->freq_sf = float2ctrl(fg / fs);
+    ctl_set_single_phase_pll_limits(spll, 0.1f, 0.9f, 1.1f);
+}
+
+void ctl_set_single_phase_pll_limits(ctl_single_phase_pll* spll, parameter_gt v_mag_norm_min,
+                                     parameter_gt frequency_min_pu, parameter_gt frequency_max_pu)
+{
+    if (v_mag_norm_min < 0.01f)
+        v_mag_norm_min = 0.01f;
+    if (frequency_min_pu < 0.1f)
+        frequency_min_pu = 0.1f;
+    if (frequency_max_pu <= frequency_min_pu)
+        frequency_max_pu = frequency_min_pu + 0.01f;
+
+    spll->v_mag_norm_min = float2ctrl(v_mag_norm_min);
+    spll->frequency_min = float2ctrl(frequency_min_pu);
+    spll->frequency_max = float2ctrl(frequency_max_pu);
+    ctl_set_pid_limit(&spll->spll_ctrl, float2ctrl(frequency_max_pu - 1.0f),
+                      float2ctrl(frequency_min_pu - 1.0f));
+    ctl_set_pid_int_limit(&spll->spll_ctrl, float2ctrl(frequency_max_pu - 1.0f),
+                          float2ctrl(frequency_min_pu - 1.0f));
 }

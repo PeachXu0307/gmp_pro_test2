@@ -29,6 +29,12 @@ CIA402_CONFIG_ENABLE_SEQUENCE_SWITCH = true;
 % Nominal grid frequency in Hz.
 CTRL_GRID_FREQUENCY = 50.0;
 
+% Lower admission threshold with sensing and line-drop margin around the 29 V operating requirement.
+CTRL_GRID_VOLTAGE_RMS_MIN = 28.0;
+
+% Upper admission threshold with sensing tolerance around the 43 V operating requirement.
+CTRL_GRID_VOLTAGE_RMS_MAX = 44.0;
+
 % SOGI PLL proportional gain.
 CTRL_PLL_KP = 10.0;
 
@@ -40,6 +46,18 @@ CTRL_PLL_LPF_FC = 20.0;
 
 % PLL frequency-error lock threshold in PU.
 CTRL_SPLL_EPSILON = 0.005;
+
+% Minimum permitted PLL/VCO frequency.
+CTRL_PLL_FREQUENCY_MIN_HZ = 49.0;
+
+% Maximum permitted PLL/VCO frequency.
+CTRL_PLL_FREQUENCY_MAX_HZ = 51.0;
+
+% Minimum voltage magnitude used by the normalized SOGI-PLL phase detector.
+CTRL_PLL_NORM_VMIN_PU = 0.18;
+
+% Continuous in-range PLL duration required before PWM enable.
+SINV_PLL_LOCK_HOLD_MS = 100;
 
 % Power measurement low-pass cutoff frequency in Hz.
 CTRL_PQ_LPF_FC = 200.0;
@@ -59,8 +77,8 @@ CTRL_Q_SLEW_PU_S = 5.0;
 % Current deadband used by PWM dead-time compensation.
 CTRL_CURRENT_DB_PU = 0.01;
 
-% QPR current-loop crossover target in Hz.
-SINV_CURRENT_LOOP_BANDWIDTH_HZ = 600.0;
+% QPR current-loop crossover target; 1 kHz is 5 percent of the 20 kHz sample rate and retains digital-delay margin.
+SINV_CURRENT_LOOP_BANDWIDTH_HZ = 1000.0;
 
 % Harmonic QPR bandwidth in Hz; wide enough for grid tolerance, narrow enough for selective damping.
 SINV_HARMONIC_QPR_BANDWIDTH_HZ = 4.0;
@@ -98,7 +116,7 @@ SINV_POWER_LOOP_KP = 0.6;
 % Active-power outer-loop integral gain per second.
 SINV_POWER_LOOP_KI = 8.0;
 
-% BUILD_LEVEL 5 physical DC bus voltage target.
+% BUILD_LEVEL 5 DC bus target, with boost/modulation headroom above 43 Vrms peak.
 SINV_DC_BUS_REF_V = 72.0;
 
 % DC-bus outer-loop proportional gain.
@@ -106,6 +124,21 @@ SINV_DC_BUS_LOOP_KP = 0.8;
 
 % DC-bus outer-loop integral gain per second.
 SINV_DC_BUS_LOOP_KI = 12.0;
+
+% DC-bus feedback LPF cutoff; rejects unavoidable 100 Hz single-phase ripple from the voltage PI.
+SINV_DC_BUS_FEEDBACK_LPF_HZ = 15.0;
+
+% DC-bus soft-start and setpoint slew limit in V/s.
+SINV_DC_BUS_REFERENCE_SLEW_V_S = 40.0;
+
+% Minimum accepted displacement power-factor magnitude.
+SINV_POWER_FACTOR_MIN = 0.10;
+
+% Safe unity-power-factor startup default for rectifier mode.
+SINV_POWER_FACTOR_DEFAULT = 1.0;
+
+% Default reactive-power direction; user interaction may command +1 or -1.
+SINV_REACTIVE_POWER_SIGN_DEFAULT = 1.0;
 
 % Symmetric outer-loop active-power command limit.
 SINV_OUTER_LOOP_POWER_LIMIT_PU = 0.65;
@@ -115,6 +148,12 @@ SINV_OUTER_LOOP_FREQUENCY_HZ = 1000.0;
 
 % Minimum operation-enabled transition delay.
 SINV_CIA402_OPERATION_ENABLE_DELAY_MS = 100;
+
+% Startup interval during which controller-divergence supervision is inhibited while OVP and OCP remain active.
+SINV_CTRL_DIVERGE_GRACE_MS = 500;
+
+% Consecutive in-range ADC samples required before software fast OVP/OCP is armed; hardware trip-zone protection remains independent.
+SINV_FAST_PROTECT_VALID_SAMPLES = 20;
 
 %% Local helpers
 function value = sdpe_select(condition, true_value, false_value)

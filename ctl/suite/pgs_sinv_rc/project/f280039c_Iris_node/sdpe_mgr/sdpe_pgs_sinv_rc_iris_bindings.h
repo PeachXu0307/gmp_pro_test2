@@ -18,7 +18,7 @@ extern "C"
 #endif
 
 // User project prefix code
-/* Original ctrl_settings.h includes are intentionally ignored during this SDPE migration trial. */
+#include <sdpe_pgs_sinv_rc_common_settings.h>
 
 //=================================================================================================
 /**
@@ -71,13 +71,10 @@ extern "C"
  */
 
 /**
- * @brief Single-phase inverter incremental debug build level.
- *        BUILD_LEVEL 1: modulator and resistive-load validation.
- *        BUILD_LEVEL 2: voltage closed-loop validation.
- *        BUILD_LEVEL 3: current-loop and full controller validation.
- *        Options: (1), (2), (3)
+ * @brief 1 open-loop R load; 2 current-loop R load; 3 signed grid P/Q current loop; 4 grid power loop; 5 DC-bus rectifier loop.
+ *        Options: (1), (2), (3), (4), (5)
  */
-#define BUILD_LEVEL (1)
+#define BUILD_LEVEL (5)
 
 //=================================================================================================
 /**
@@ -230,12 +227,12 @@ extern "C"
 /**
  * @brief Rated DC bus voltage.
  */
-#define CTRL_DCBUS_VOLTAGE (60.0f)
+#define CTRL_DCBUS_VOLTAGE (72.0f)
 
 /**
- * @brief Rated AC grid/load RMS voltage.
+ * @brief Nominal point inside the required 29 V to 43 V AC input range.
  */
-#define CTRL_GRID_VOLTAGE_RMS (24.0f)
+#define CTRL_GRID_VOLTAGE_RMS (36.0f)
 
 /**
  * @brief Rated AC output RMS current.
@@ -243,19 +240,14 @@ extern "C"
 #define CTRL_RATED_CURRENT_RMS (10.0f)
 
 /**
- * @brief Voltage per-unit base, using peak value.
+ * @brief Peak-voltage per-unit base corresponding to 43 Vrms.
  */
-#define CTRL_VOLTAGE_BASE (34.0f)
+#define CTRL_VOLTAGE_BASE (60.8112f)
 
 /**
  * @brief Current per-unit base, using peak value.
  */
 #define CTRL_CURRENT_BASE (14.14f)
-
-/**
- * @brief Nominal AC grid/fundamental frequency in Hz.
- */
-#define CTRL_GRID_FREQUENCY (50.0f)
 
 /**
  * @brief Total AC-side filter/grid inductance in H.
@@ -266,56 +258,6 @@ extern "C"
  * @brief Total AC-side series resistance in Ohm.
  */
 #define CTRL_AC_RESISTANCE (0.1f)
-
-/**
- * @brief Single-phase PLL proportional gain.
- */
-#define CTRL_PLL_KP (10.0f)
-
-/**
- * @brief Single-phase PLL integral time constant in seconds.
- */
-#define CTRL_PLL_TI (0.02f)
-
-/**
- * @brief PLL q-axis error low-pass cutoff in Hz.
- */
-#define CTRL_PLL_LPF_FC (20.0f)
-
-/**
- * @brief Measured active/reactive power low-pass cutoff in Hz.
- */
-#define CTRL_PQ_LPF_FC (200.0f)
-
-/**
- * @brief Peak current-reference limit in per unit.
- */
-#define CTRL_CURRENT_LIMIT_PU (1.5f)
-
-/**
- * @brief Minimum PLL voltage magnitude used by P/Q reference division.
- */
-#define CTRL_GRID_VMIN_PU (0.1f)
-
-/**
- * @brief Active-power command slew limit in PU/s.
- */
-#define CTRL_P_SLEW_PU_S (10.0f)
-
-/**
- * @brief Reactive-power command slew limit in PU/s.
- */
-#define CTRL_Q_SLEW_PU_S (20.0f)
-
-/**
- * @brief Current polarity deadband for PWM dead-time compensation.
- */
-#define CTRL_CURRENT_DB_PU (0.01f)
-
-/**
- * @brief Minimum fundamental frequency tracked by the repetitive controller in Hz.
- */
-#define CTRL_FDRC_MIN_FREQ (45.0f)
 
 /**
  * @brief AC voltage sensing gain from the grid LC filter voltage sense path.
@@ -373,9 +315,9 @@ extern "C"
 #define CTRL_PROT_VCTRL_MAX_PU (1.5f)
 
 /**
- * @brief Minimum physical DC-bus voltage accepted by the startup state machine.
+ * @brief Minimum precharged DC bus accepted before active boost takeover.
  */
-#define CTRL_DCBUS_READY_MIN (CTRL_DCBUS_VOLTAGE * 0.8f)
+#define CTRL_DCBUS_READY_MIN (CTRL_GRID_VOLTAGE_RMS_MIN * 1.2f)
 
 /**
  * @brief Maximum physical DC-bus voltage accepted by the startup state machine.
@@ -386,11 +328,6 @@ extern "C"
  * @brief ADC calibration timeout in ms.
  */
 #define TIMEOUT_ADC_CALIB_MS (3000)
-
-/**
- * @brief SPLL close-loop convergence criterion.
- */
-#define CTRL_SPLL_EPSILON ((float2ctrl(0.005)))
 
 // User project tail code
 /* Compatibility with framework revisions that use the historical misspelling. */

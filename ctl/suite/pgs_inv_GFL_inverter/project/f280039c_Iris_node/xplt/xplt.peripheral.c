@@ -43,6 +43,9 @@ adc_gt idc_src;
 
 extern gpio_halt user_led;
 
+ctrl_gt dac1;
+ctrl_gt dac2;
+
 //=================================================================================================
 // peripheral setup function
 
