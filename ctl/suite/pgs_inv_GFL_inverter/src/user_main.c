@@ -31,10 +31,12 @@ const gmp_param_item_t dict_m1[] = {
     {&inv_ctrl.idq_set.dat[phase_q], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
     {&inv_ctrl.idq.dat[phase_d], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
     {&inv_ctrl.idq.dat[phase_q], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
-    {&pq_ctrl.pq_set.dat[0], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
-    {&pq_ctrl.pq_set.dat[1], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
-    {&pq_ctrl.pq_meas.dat[0], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
-    {&pq_ctrl.pq_meas.dat[1], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
+    {&vac_ctrl.vdq_set.dat[phase_d], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
+    {&vac_ctrl.vdq_set.dat[phase_q], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
+    {&vac_ctrl.vdq_meas_mirror.dat[phase_d], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
+    {&vac_ctrl.vdq_meas_mirror.dat[phase_q], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
+    {&vac_ctrl.idq_set_out.dat[phase_d], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
+    {&vac_ctrl.idq_set_out.dat[phase_q], GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
 };
 const uint16_t var_tunable_count = sizeof(dict_m1) / sizeof(dict_m1[0]);
 gmp_param_tunable_t tunable;

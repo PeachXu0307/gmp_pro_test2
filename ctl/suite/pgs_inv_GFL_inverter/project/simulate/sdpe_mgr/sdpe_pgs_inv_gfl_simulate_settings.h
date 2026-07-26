@@ -34,10 +34,10 @@ extern "C"
  */
 
 /**
- * @brief Incremental control level; level 5 enables the cascaded P/Q power loop.
+ * @brief Incremental control level; level 5 enables the Park-dq AC-voltage outer loop.
  *        Options: (1), (2), (3), (4), (5)
  */
-#define BUILD_LEVEL (2)
+#define BUILD_LEVEL (5)
 
 //=================================================================================================
 /**

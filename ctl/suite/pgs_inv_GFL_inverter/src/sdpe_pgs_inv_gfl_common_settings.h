@@ -84,7 +84,7 @@ extern "C"
 /**
  * @brief Nominal grid phase-voltage magnitude in controller per unit.
  */
-#define GFL_GRID_VOLTAGE_PU (0.33f)
+#define GFL_GRID_VOLTAGE_PU (0.6f)
 
 /**
  * @brief Nominal grid frequency in hertz.
@@ -92,66 +92,63 @@ extern "C"
 #define GFL_GRID_FREQUENCY_HZ (50.0f)
 
 /**
- * @brief P/Q outer-loop execution frequency in hertz.
+ * @brief Level-5 voltage-forming AC-voltage outer-loop execution frequency in hertz.
  */
-#define GFL_PQ_LOOP_FREQUENCY_HZ (1000.0f)
+#define GFL_VAC_LOOP_FREQUENCY_HZ (1000.0f)
 
 /**
- * @brief Current-ISR to P/Q-loop execution divider.
+ * @brief Current-ISR to Level-5 voltage-forming outer-loop execution divider.
  */
-#define GFL_PQ_LOOP_DIVIDER ((uint32_t)(CONTROLLER_FREQUENCY / GFL_PQ_LOOP_FREQUENCY_HZ))
+#define GFL_VAC_LOOP_DIVIDER ((uint32_t)(CONTROLLER_FREQUENCY / GFL_VAC_LOOP_FREQUENCY_HZ))
 
 /**
  * @brief Grid-current ADC low-pass cutoff frequency in hertz.
- *        Lower this value to suppress more switching ripple; raise it if current-loop response becomes too slow.
  */
-#define GFL_CURRENT_ADC_FILTER_FC_HZ (100.0f)
+#define GFL_CURRENT_ADC_FILTER_FC_HZ (800.0f)
 
 /**
- * @brief Active-power loop proportional gain from P error PU to d-axis current PU.
+ * @brief Level-5 positive-sequence voltage-forming d-axis proportional gain from Vd error PU to Id command PU.
  */
-#define GFL_PQ_ACTIVE_KP (0.75f)
+#define GFL_VAC_D_AXIS_KP (0.20f)
 
 /**
- * @brief Active-power loop integral gain in inverse seconds.
+ * @brief Level-5 positive-sequence voltage-forming d-axis integral gain in inverse seconds.
  */
-#define GFL_PQ_ACTIVE_KI (0.001f)
+#define GFL_VAC_D_AXIS_KI (10.0f)
 
 /**
- * @brief Reactive-power loop proportional gain from Q error PU to q-axis current PU.
+ * @brief Level-5 positive-sequence voltage-forming q-axis proportional gain from Vq error PU to Iq command PU.
  */
-#define GFL_PQ_REACTIVE_KP (0.75f)
+#define GFL_VAC_Q_AXIS_KP (0.20f)
 
 /**
- * @brief Reactive-power loop integral gain in inverse seconds.
+ * @brief Level-5 positive-sequence voltage-forming q-axis integral gain in inverse seconds.
  */
-#define GFL_PQ_REACTIVE_KI (0.001f)
+#define GFL_VAC_Q_AXIS_KI (10.0f)
 
 /**
- * @brief Circular magnitude limit applied to the d/q current reference produced by the P/Q loop.
+ * @brief Circular magnitude limit applied to the d/q current reference produced by the voltage-forming loop.
  */
-#define GFL_PQ_CURRENT_LIMIT_PU (0.05f)
+#define GFL_VAC_CURRENT_LIMIT_PU (0.80f)
 
 /**
- * @brief Default active-power reference. Positive power exports energy to the grid.
+ * @brief Default Level-5 positive-sequence d-axis phase-voltage reference in the internal angle frame.
  */
-#define GFL_ACTIVE_POWER_REF_PU (0.002f)
+#define GFL_AC_VOLTAGE_D_REF_PU (GFL_GRID_VOLTAGE_PU)
 
 /**
- * @brief Default reactive-power reference using Q = vq*id - vd*iq.
+ * @brief Default Level-5 positive-sequence q-axis phase-voltage reference in the internal angle frame.
  */
-#define GFL_REACTIVE_POWER_REF_PU (0.0f)
+#define GFL_AC_VOLTAGE_Q_REF_PU (0.0f)
 
 /**
  * @brief BUILD_LEVEL 1 d-axis open-loop voltage command.
  */
-//#define GFL_OPEN_LOOP_VD_PU (0.6f)
-#define GFL_OPEN_LOOP_VD_PU (0.5f)
+#define GFL_OPEN_LOOP_VD_PU (0.3f)
 
 /**
  * @brief BUILD_LEVEL 1 q-axis open-loop voltage command.
  */
-//#define GFL_OPEN_LOOP_VQ_PU (0.6f)
 #define GFL_OPEN_LOOP_VQ_PU (0.0f)
 
 /**
@@ -203,6 +200,11 @@ extern "C"
  * @brief PLL lock-error threshold in controller per unit.
  */
 #define CTRL_SPLL_EPSILON ((float2ctrl(0.005)))
+
+/**
+ * @brief Slew rate for Level-5 voltage-forming voltage references in pu/s.
+ */
+#define GFL_VAC_REF_SLEW_PU_S (0.50f)
 
 // User project tail code
 /* Accept the historical PIL spelling while new projects use the canonical switch. */

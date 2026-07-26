@@ -18,9 +18,10 @@
 #include <ctl/component/interface/pwm_channel.h>
 
 #include <ctl/component/digital_power/inv/gfl_core.h>
-#include <ctl/component/digital_power/inv/gfl_pq_ctrl.h>
 #include <ctl/component/digital_power/inv/inv_hcm.h>
 #include <ctl/component/digital_power/inv/inv_neg_ctrl.h>
+
+#include "gfl_vac_ctrl.h"
 
 #include <ctl/component/interface/spwm_modulator.h>
 
@@ -43,7 +44,7 @@ extern cia402_sm_t cia402_sm;
 // Control Law Core
 extern gfl_inv_ctrl_init_t gfl_init;
 extern gfl_inv_ctrl_t inv_ctrl;
-extern gfl_pq_ctrl_t pq_ctrl;
+extern gfl_vac_ctrl_t vac_ctrl;
 extern inv_neg_ctrl_init_t gfl_neg_init;
 extern inv_neg_ctrl_t neg_current_ctrl;
 
@@ -62,7 +63,7 @@ extern spwm_modulator_t spwm;
 extern adc_bias_calibrator_t adc_calibrator;
 extern volatile fast_gt flag_enable_adc_calibrator;
 extern volatile fast_gt index_adc_calibrator;
-extern uint32_t pq_loop_tick;
+extern uint32_t vac_loop_tick;
 
 // User commands
 
@@ -96,20 +97,26 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
         ctl_step_gfl_inv_ctrl(&inv_ctrl);
         ctl_step_neg_inv_ctrl(&neg_current_ctrl);
 
-        // Run the P/Q outer loop at its own lower rate. The current loop keeps
-        // executing every ISR and consumes the most recent current reference.
-        ++pq_loop_tick;
-        if (pq_loop_tick >= GFL_PQ_LOOP_DIVIDER)
+#if BUILD_LEVEL == 5
+        // Run the Level-5 voltage-forming outer loop at its own lower rate.
+        // The current loop keeps consuming the most recent current reference.
+        ++vac_loop_tick;
+        if (vac_loop_tick >= GFL_VAC_LOOP_DIVIDER)
         {
-            pq_loop_tick = 0;
-            ctl_step_gfl_pq(&pq_ctrl);
+            vac_loop_tick = 0;
+            ctl_step_gfl_vac(&vac_ctrl);
 
-            if (pq_ctrl.flag_enable)
+            if (vac_ctrl.flag_enable && inv_ctrl.flag_enable_system)
             {
-                ctl_set_gfl_inv_current(&inv_ctrl, pq_ctrl.idq_set_out.dat[phase_d],
-                                        pq_ctrl.idq_set_out.dat[phase_q]);
+                ctl_set_gfl_inv_current(&inv_ctrl, vac_ctrl.idq_set_out.dat[phase_d],
+                                        vac_ctrl.idq_set_out.dat[phase_q]);
+            }
+            else if (vac_ctrl.flag_enable)
+            {
+                ctl_set_gfl_inv_current(&inv_ctrl, 0, 0);
             }
         }
+#endif
 
         // mix all output
         spwm.vab0_out.dat[phase_A] = inv_ctrl.vab0_out.dat[phase_A] + neg_current_ctrl.vab_out.dat[phase_A];

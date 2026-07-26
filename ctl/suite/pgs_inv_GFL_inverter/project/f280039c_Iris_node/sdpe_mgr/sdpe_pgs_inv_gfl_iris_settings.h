@@ -82,10 +82,10 @@ extern "C"
  */
 
 /**
- * @brief Incremental control level; level 5 enables the cascaded P/Q power loop.
+ * @brief Incremental control level; level 5 enables the Park-dq AC-voltage outer loop.
  *        Options: (1), (2), (3), (4), (5)
  */
-#define BUILD_LEVEL (2)
+#define BUILD_LEVEL (5)
 
 //=================================================================================================
 /**
@@ -142,7 +142,7 @@ extern "C"
 /**
  * @brief DC-bus per-unit voltage base.
  */
-#define CTRL_DCBUS_VOLTAGE (80.0f)
+#define CTRL_DCBUS_VOLTAGE (20.0f)
 
 /**
  * @brief SVPWM phase-voltage base.
@@ -177,12 +177,13 @@ extern "C"
 /**
  * @brief Grid-voltage sensing gain.
  */
-#define CTRL_GRID_VOLTAGE_SENSITIVITY (HARMONIA_3PH_LC_FILTER_PH_VOLTAGE_SENSE_GAIN)
+//#define CTRL_GRID_VOLTAGE_SENSITIVITY (HARMONIA_3PH_LC_FILTER_PH_VOLTAGE_SENSE_GAIN)
+#define CTRL_GRID_VOLTAGE_SENSITIVITY (0.012f)
 
 /**
  * @brief Grid-voltage sensing bias.
  */
-#define CTRL_GRID_VOLTAGE_BIAS (HARMONIA_3PH_LC_FILTER_PH_VOLTAGE_SENSE_BIAS_V)
+#define CTRL_GRID_VOLTAGE_BIAS (1.65f)
 
 /**
  * @brief Helios phase-voltage sensing gain.

@@ -45,7 +45,7 @@
         "(4)",
         "(5)"
       ],
-      "description": "Incremental control level; level 5 enables the cascaded P/Q power loop."
+      "description": "Incremental control level; level 5 enables the Park-dq AC-voltage outer loop."
     },
     {
       "group": "Sampling",

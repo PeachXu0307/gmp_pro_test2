@@ -29,8 +29,8 @@
 cia402_sm_t cia402_sm;
 
 // Control Law Core
-// Current controller, Power controller / Voltage controller
-gfl_pq_ctrl_t pq_ctrl;
+// Current controller, AC-voltage outer loop
+gfl_vac_ctrl_t vac_ctrl;
 inv_neg_ctrl_init_t gfl_neg_init;
 inv_neg_ctrl_t neg_current_ctrl;
 gfl_inv_ctrl_init_t gfl_init;
@@ -55,9 +55,28 @@ volatile fast_gt flag_enable_adc_calibrator = 1;
 volatile fast_gt flag_enable_adc_calibrator = 0;
 #endif
 volatile fast_gt index_adc_calibrator = 0;
-uint32_t pq_loop_tick = 0;
+uint32_t vac_loop_tick = 0;
 
 // User commands
+
+static void ctl_config_level5_voltage_forming(void)
+{
+#if BUILD_LEVEL == 5
+    ctl_set_gfl_inv_current_mode(&inv_ctrl);
+    ctl_set_gfl_inv_freerun(&inv_ctrl);
+    ctl_disable_gfl_inv_pll(&inv_ctrl);
+    ctl_set_gfl_inv_current(&inv_ctrl, 0, 0);
+
+    ctl_vector2_clear(&neg_current_ctrl.idqn_set);
+    ctl_vector2_clear(&neg_current_ctrl.vdqn_set);
+    ctl_enable_neg_current_inv(&neg_current_ctrl);
+
+    inv_ctrl.flag_enable_decouple = 1;
+    inv_ctrl.flag_enable_active_damping = 0;
+    inv_ctrl.flag_enable_lead_compensator = 1;
+    ctl_enable_gfl_vac_ctrl(&vac_ctrl);
+#endif
+}
 
 //=================================================================================================
 // CTL initialize routine
@@ -89,8 +108,22 @@ void ctl_init()
     gfl_init.current_adc_fc = GFL_CURRENT_ADC_FILTER_FC_HZ;
     ctl_init_gfl_inv(&inv_ctrl, &gfl_init);
 
+    inv_ctrl.pid_idq[phase_d].kp = float2ctrl(1.5f);
+    inv_ctrl.pid_idq[phase_q].kp = float2ctrl(1.5f);
+
+
     ctl_auto_tuning_neg_inv(&gfl_neg_init, &gfl_init);
+
     ctl_init_neg_inv(&neg_current_ctrl, &gfl_neg_init);
+
+    neg_current_ctrl.pid_vdqn[phase_d].kp = float2ctrl(0.1f);
+    neg_current_ctrl.pid_vdqn[phase_d].ki = float2ctrl(0.1f);
+
+    neg_current_ctrl.pid_vdqn[phase_q].kp = float2ctrl(0.1f);
+    neg_current_ctrl.pid_vdqn[phase_q].ki = float2ctrl(0.1f);
+
+
+
     ctl_attach_neg_inv_to_gfl(&neg_current_ctrl, &inv_ctrl);
 
     //
@@ -105,13 +138,17 @@ void ctl_init()
 #endif // USING_NPC_MODULATOR
 
     //
-    // Power controller
+    // Level-5 AC-voltage outer loop
     //
-    ctl_init_gfl_pq(&pq_ctrl, GFL_PQ_ACTIVE_KP, GFL_PQ_ACTIVE_KI, GFL_PQ_REACTIVE_KP, GFL_PQ_REACTIVE_KI,
-                    GFL_PQ_CURRENT_LIMIT_PU, GFL_PQ_LOOP_FREQUENCY_HZ);
-    ctl_attach_gfl_pq_to_core(&pq_ctrl, &inv_ctrl);
-    ctl_set_gfl_pq_ref(&pq_ctrl, float2ctrl(GFL_ACTIVE_POWER_REF_PU), float2ctrl(GFL_REACTIVE_POWER_REF_PU));
-    pq_loop_tick = 0;
+    ctl_init_gfl_vac(&vac_ctrl, 0.2f, 10.0f, 0.2f, 10.0f,
+                     GFL_VAC_CURRENT_LIMIT_PU, GFL_VAC_REF_SLEW_PU_S, GFL_VAC_LOOP_FREQUENCY_HZ);
+    ctl_attach_gfl_vac_to_core(&vac_ctrl, &inv_ctrl);
+    ctl_set_gfl_vac_ref(&vac_ctrl, float2ctrl(GFL_AC_VOLTAGE_D_REF_PU), float2ctrl(GFL_AC_VOLTAGE_Q_REF_PU));
+    vac_loop_tick = 0;
+
+
+
+
 
 #if BUILD_LEVEL == 1
     // Voltage open loop, inverter
@@ -148,17 +185,10 @@ void ctl_init()
     ctl_enable_gfl_inv_lead_compensator(&inv_ctrl);
 
 #elif BUILD_LEVEL == 5
-    // Cascaded P/Q power loop -> d/q current loop, grid connected.
-    ctl_set_gfl_inv_current_mode(&inv_ctrl);
-    ctl_set_gfl_inv_current(&inv_ctrl, 0, 0);
-
-    ctl_enable_neg_current_inv(&neg_current_ctrl);
-    ctl_enable_gfl_inv_pll(&inv_ctrl);
-    ctl_set_gfl_inv_grid_connect(&inv_ctrl);
-    ctl_enable_gfl_inv_decouple(&inv_ctrl);
-    ctl_enable_gfl_inv_active_damp(&inv_ctrl);
-    ctl_enable_gfl_inv_lead_compensator(&inv_ctrl);
-    ctl_enable_gfl_pq_ctrl(&pq_ctrl);
+    // Voltage-forming mode: use the internal nominal-frequency angle and
+    // cascade AC-voltage PI into the existing d/q current loop. No PLL or
+    // grid-connect tracking is allowed in Level 5.
+    ctl_config_level5_voltage_forming();
 
 #endif // BUILD_LEVEL
 
@@ -227,6 +257,9 @@ time_gt gmp_base_get_ctrl_tick(void)
 
 void ctl_enable_pwm()
 {
+#if BUILD_LEVEL == 5
+    ctl_config_level5_voltage_forming();
+#endif
     ctl_fast_enable_output();
 }
 
@@ -237,8 +270,8 @@ void ctl_disable_pwm()
     // clear controller here
     ctl_clear_gfl_inv(&inv_ctrl);
     ctl_clear_neg_inv(&neg_current_ctrl);
-    ctl_clear_gfl_pq(&pq_ctrl);
-    pq_loop_tick = 0;
+    ctl_clear_gfl_vac(&vac_ctrl);
+    vac_loop_tick = 0;
 }
 
 fast_gt ctl_check_pll_locked(void)

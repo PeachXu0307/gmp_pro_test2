@@ -21,6 +21,44 @@ sdpe_validate.bat
 sdpe_generate.bat
 ```
 
+## Level 5 AC Voltage Loop
+
+`BUILD_LEVEL == 5` has been refactored from the former P/Q outer loop to a
+cascaded AC-voltage loop:
+
+```text
+Vd*/Vq* -> positive-sequence voltage PI -> circular dq current limit -> dq current loop -> PWM
+                         ^                                      |
+                         |------------- measured vdq -----------|
+```
+
+The Level-5 outer loop keeps the positive-sequence output voltage at
+`GFL_AC_VOLTAGE_D_REF_PU / GFL_AC_VOLTAGE_Q_REF_PU`, with a reference slew
+limiter for bumpless enable and online setpoint changes. The loop output remains
+the same `id/iq` current command consumed by the existing inner current loop, so
+Level 1 and Level 2 commissioning paths are untouched.
+
+For unbalanced loads, Level 5 enables the existing negative-sequence voltage
+controller (`ctl_enable_neg_voltage_inv`) when
+`GFL_ENABLE_NEGATIVE_SEQUENCE_VOLTAGE_CTRL == 1`; its negative-sequence voltage
+reference is zero, suppressing negative-sequence voltage and preserving a
+balanced sinusoidal three-phase output.
+
+Parameter migration from the old P/Q loop is explicit:
+
+```text
+GFL_PQ_LOOP_*             -> GFL_VAC_LOOP_*
+GFL_PQ_ACTIVE_*           -> GFL_VAC_D_AXIS_*
+GFL_PQ_REACTIVE_*         -> GFL_VAC_Q_AXIS_*
+GFL_PQ_CURRENT_LIMIT_PU   -> GFL_VAC_CURRENT_LIMIT_PU
+GFL_ACTIVE_POWER_REF_PU   -> GFL_AC_VOLTAGE_D_REF_PU
+GFL_REACTIVE_POWER_REF_PU -> GFL_AC_VOLTAGE_Q_REF_PU
+```
+
+The Datalink tunable entries that previously exposed `pq_ctrl.pq_set` and
+`pq_ctrl.pq_meas` now expose `vac_ctrl.vdq_set` and
+`vac_ctrl.vdq_meas_mirror`.
+
 `sdpe_edit.bat` 会同时打开公共配置和 `project` 下全部四个平台配置。平台目录中的 `sdpe_edit.bat`、`sdpe_validate.bat` 和 `sdpe_generate.bat` 可用于单独维护某个平台。运行脚本前需设置 `GMP_PRO_LOCATION` 指向仓库根目录。
 
 ## 硬件配置

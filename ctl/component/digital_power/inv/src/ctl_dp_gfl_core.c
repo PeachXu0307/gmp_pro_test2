@@ -39,11 +39,7 @@ void ctl_auto_tuning_gfl_inv(gfl_inv_ctrl_init_t* init)
     assert(init->grid_filter_L > 1e-9f);
 
     // Select proper ADC digital filter cut frequency
-#ifdef GFL_CURRENT_ADC_FILTER_FC_HZ
-    init->current_adc_fc = GFL_CURRENT_ADC_FILTER_FC_HZ;
-#else
     init->current_adc_fc = init->fs / 3;
-#endif
     init->voltage_adc_fc = init->fs / 3;
 
     // Only L filter grid connector
