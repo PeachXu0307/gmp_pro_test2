@@ -11,6 +11,9 @@
 #include <ctl/hardware_preset/grid_lc_filter/gmp_harmonia_3ph_lc_filter.h>
 #include <ctl/hardware_preset/half_bridge/gmp_lvfb_150_2ph_v2.h>
 #include <ctl/hardware_preset/mcu_board/iris_f280039c_node.h>
+// Pull in the shared SINV control contract so ctl_main.c sees the common macros
+// even when the CCS project does not add ctl/suite/pgs_sinv_rc/src to its include path.
+#include "../../../src/sdpe_pgs_sinv_rc_common_settings.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -18,7 +21,7 @@ extern "C"
 #endif
 
 // User project prefix code
-#include <sdpe_pgs_sinv_rc_common_settings.h>
+/* Original ctrl_settings.h includes are intentionally ignored during this SDPE migration trial. */
 
 //=================================================================================================
 /**
@@ -48,7 +51,7 @@ extern "C"
 /**
  * @brief Enable ADC calibration.
  */
-#define SPECIFY_ENABLE_ADC_CALIBRATE
+//#define SPECIFY_ENABLE_ADC_CALIBRATE
 
 //=================================================================================================
 /**
@@ -71,8 +74,11 @@ extern "C"
  */
 
 /**
- * @brief 1 open-loop R load; 2 current-loop R load; 3 signed grid P/Q current loop; 4 grid power loop; 5 DC-bus rectifier loop.
- *        Options: (1), (2), (3), (4), (5)
+ * @brief Single-phase inverter incremental debug build level.
+ *        BUILD_LEVEL 1: modulator and resistive-load validation.
+ *        BUILD_LEVEL 2: voltage closed-loop validation.
+ *        BUILD_LEVEL 3: current-loop and full controller validation.
+ *        Options: (1), (2), (3)
  */
 #define BUILD_LEVEL (5)
 
@@ -96,7 +102,7 @@ extern "C"
  * @brief PWM base for inverter phase L.
  *        Options: IRIS_EPWM1_BASE, IRIS_EPWM2_BASE, IRIS_EPWM3_BASE, IRIS_EPWM4_BASE, IRIS_EPWM5_BASE, IRIS_EPWM6_BASE
  */
-#define PHASE_L_BASE IRIS_EPWM3_BASE
+#define PHASE_L_BASE IRIS_EPWM2_BASE
 
 /**
  * @brief PWM base for inverter phase N.
@@ -227,12 +233,12 @@ extern "C"
 /**
  * @brief Rated DC bus voltage.
  */
-#define CTRL_DCBUS_VOLTAGE (72.0f)
+#define CTRL_DCBUS_VOLTAGE (20.0f)
 
 /**
- * @brief Nominal point inside the required 29 V to 43 V AC input range.
+ * @brief Rated AC grid/load RMS voltage.
  */
-#define CTRL_GRID_VOLTAGE_RMS (36.0f)
+#define CTRL_GRID_VOLTAGE_RMS (15.0f)
 
 /**
  * @brief Rated AC output RMS current.
@@ -240,14 +246,19 @@ extern "C"
 #define CTRL_RATED_CURRENT_RMS (10.0f)
 
 /**
- * @brief Peak-voltage per-unit base corresponding to 43 Vrms.
+ * @brief Voltage per-unit base, using peak value.
  */
-#define CTRL_VOLTAGE_BASE (60.8112f)
+#define CTRL_VOLTAGE_BASE (80.0f)
 
 /**
  * @brief Current per-unit base, using peak value.
  */
 #define CTRL_CURRENT_BASE (14.14f)
+
+/**
+ * @brief Nominal AC grid/fundamental frequency in Hz.
+ */
+#define CTRL_GRID_FREQUENCY (50.0f)
 
 /**
  * @brief Total AC-side filter/grid inductance in H.
@@ -258,6 +269,56 @@ extern "C"
  * @brief Total AC-side series resistance in Ohm.
  */
 #define CTRL_AC_RESISTANCE (0.1f)
+
+/**
+ * @brief Single-phase PLL proportional gain.
+ */
+#define CTRL_PLL_KP (10.0f)
+
+/**
+ * @brief Single-phase PLL integral time constant in seconds.
+ */
+#define CTRL_PLL_TI (0.02f)
+
+/**
+ * @brief PLL q-axis error low-pass cutoff in Hz.
+ */
+#define CTRL_PLL_LPF_FC (20.0f)
+
+/**
+ * @brief Measured active/reactive power low-pass cutoff in Hz.
+ */
+#define CTRL_PQ_LPF_FC (200.0f)
+
+/**
+ * @brief Peak current-reference limit in per unit.
+ */
+#define CTRL_CURRENT_LIMIT_PU (1.5f)
+
+/**
+ * @brief Minimum PLL voltage magnitude used by P/Q reference division.
+ */
+#define CTRL_GRID_VMIN_PU (0.1f)
+
+/**
+ * @brief Active-power command slew limit in PU/s.
+ */
+#define CTRL_P_SLEW_PU_S (10.0f)
+
+/**
+ * @brief Reactive-power command slew limit in PU/s.
+ */
+#define CTRL_Q_SLEW_PU_S (20.0f)
+
+/**
+ * @brief Current polarity deadband for PWM dead-time compensation.
+ */
+#define CTRL_CURRENT_DB_PU (0.01f)
+
+/**
+ * @brief Minimum fundamental frequency tracked by the repetitive controller in Hz.
+ */
+#define CTRL_FDRC_MIN_FREQ (45.0f)
 
 /**
  * @brief AC voltage sensing gain from the grid LC filter voltage sense path.
@@ -302,7 +363,7 @@ extern "C"
 /**
  * @brief Project DC bus over-voltage protection threshold.
  */
-#define CTRL_PROT_VBUS_MAX (100.0f)
+#define CTRL_PROT_VBUS_MAX (80.0f)
 
 /**
  * @brief Fast AC peak-current trip threshold in A.
@@ -312,12 +373,12 @@ extern "C"
 /**
  * @brief Maximum unsaturated modulation command before controller-divergence trip.
  */
-#define CTRL_PROT_VCTRL_MAX_PU (1.5f)
+#define CTRL_PROT_VCTRL_MAX_PU (2.0f)
 
 /**
- * @brief Minimum precharged DC bus accepted before active boost takeover.
+ * @brief Minimum physical DC-bus voltage accepted by the startup state machine.
  */
-#define CTRL_DCBUS_READY_MIN (CTRL_GRID_VOLTAGE_RMS_MIN * 1.2f)
+#define CTRL_DCBUS_READY_MIN (CTRL_DCBUS_VOLTAGE * 0.8f)
 
 /**
  * @brief Maximum physical DC-bus voltage accepted by the startup state machine.
@@ -328,6 +389,11 @@ extern "C"
  * @brief ADC calibration timeout in ms.
  */
 #define TIMEOUT_ADC_CALIB_MS (3000)
+
+/**
+ * @brief SPLL close-loop convergence criterion.
+ */
+#define CTRL_SPLL_EPSILON ((float2ctrl(0.005)))
 
 // User project tail code
 /* Compatibility with framework revisions that use the historical misspelling. */

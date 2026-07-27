@@ -11,9 +11,9 @@ SDPE_PROJECT_ID = 'pgs_sinv_rc_iris_node';
 
 SDPE_PROJECT_SUITE = 'pgs_sinv_rc';
 
-SDPE_PROJECT_VERSION = '0.2.0';
+SDPE_PROJECT_VERSION = '0.1.0';
 
-SDPE_PROJECT_UPDATED_AT = '2026-07-15';
+SDPE_PROJECT_UPDATED_AT = '2026-07-10';
 
 %% Hardware macros
 IRIS_F280039C_ID = 'iris_f280039c_node';
@@ -46,6 +46,81 @@ IRIS_F280039C_ADC_CH3 = 'ADC_CH3';
 % SysConfig ADC channel 4 macro.
 IRIS_F280039C_ADC_CH4 = 'ADC_CH4';
 
+GMP_LVFB_ID = 'gmp_lvfb_150_2ph_v2';
+
+GMP_LVFB_SCHEMA = 'half_bridge';
+
+GMP_LVFB_NAME = 'GMP LVFB 150V 2-Phase V2 Inverter Board';
+
+% Board or module name.
+GMP_LVFB_BOARD_NAME = 'GMP LVFB 2ph V6.1';
+
+% Integrated gate driver part number.
+GMP_LVFB_GATE_DRIVER = 'UCC21520DWR';
+
+% Power MOSFET part number.
+GMP_LVFB_MOSFET = 'BSC093N15NS5';
+
+% On-board current sensing device.
+GMP_LVFB_CURRENT_SENSOR_NAME = 'TMCS1133B5A';
+
+% On-board voltage sensing device.
+GMP_LVFB_VOLTAGE_SENSOR_NAME = 'AMC1311BDWVR';
+
+% Number of half-bridge phases represented by this module.
+GMP_LVFB_PHASE_COUNT = 2;
+
+% Current measurement range exported by the current sensor sub component.
+GMP_LVFB_MEASURED_CURRENT_RANGE_A = TMCS1133_B5A_RANGE_A;
+
+% Maximum allowable DC bus voltage.
+GMP_LVFB_VBUS_MAX_V = 120.0;
+
+% Maximum instantaneous peak phase current.
+GMP_LVFB_CURRENT_MAX_PEAK_A = 55.0;
+
+% Maximum continuous RMS phase current.
+GMP_LVFB_CURRENT_MAX_RMS_A = 35.0;
+
+% Recommended hardware deadtime.
+GMP_LVFB_DEADTIME_NS = 523.0;
+
+% Current sensing signal bandwidth.
+GMP_LVFB_CURRENT_BW_HZ = 300.0e3;
+
+% Current sensor ADC bias voltage.
+GMP_LVFB_CURRENT_BIAS_V = 1.65;
+
+% Configured current sensitivity.
+GMP_LVFB_CURRENT_SENSITIVITY = TMCS1133_B5A_SENSITIVITY_V_PER_A;
+
+% ADC reference scale voltage.
+GMP_LVFB_VOLTAGE_BASE_V = 3.3;
+
+% Voltage sensing ADC bias voltage.
+GMP_LVFB_VOLTAGE_BIAS_V = 0.0;
+
+% Voltage sensing bandwidth.
+GMP_LVFB_VOLTAGE_BW_HZ = 114.47e3;
+
+% Default low-side voltage divider resistance.
+GMP_LVFB_VOLTAGE_R_LOW_OHM = 15e3;
+
+% Default high-side voltage divider resistance.
+GMP_LVFB_VOLTAGE_R_HIGH_OHM = 300e3;
+
+% Configured voltage sensing gain.
+GMP_LVFB_VOLTAGE_SENSITIVITY = (15e3) / ((15e3) + ((300e3) * 3)) * 1.65;
+
+% Configured maximum measurable voltage.
+GMP_LVFB_VOLTAGE_MAX = 3.3 / ((15e3) / ((15e3) + ((300e3) * 3)) * 1.65);
+
+% Optional local DC bus capacitance.
+GMP_LVFB_BUS_CAPACITANCE_F = 0.0;
+
+% Whether this module declares a local bus capacitor.
+GMP_LVFB_HAS_LOCAL_BUS_CAP = GMP_LVFB_BUS_CAPACITANCE_F > 0.0;
+
 BSC093N15NS5_ID = 'bsc093n15ns5';
 
 BSC093N15NS5_SCHEMA = 'power_switch';
@@ -66,21 +141,6 @@ BSC093N15NS5_CURRENT_RATING_A = 55.0;
 
 % On resistance.
 BSC093N15NS5_RDSON_OHM = 0.0093;
-
-% Single switch, dual switch, half bridge power block, etc.
-BSC093N15NS5_CONFIGURATION = 'single';
-
-% Maximum on resistance at the documented gate voltage.
-BSC093N15NS5_RDSON_MAX_OHM = 0.0;
-
-% Gate voltage associated with the resistance value.
-BSC093N15NS5_GATE_VOLTAGE_V = 0.0;
-
-% Typical total gate charge.
-BSC093N15NS5_GATE_CHARGE_NC = 0.0;
-
-% Manufacturer package name.
-BSC093N15NS5_PACKAGE = 'unknown';
 
 TMCS1133_B5A_ID = 'tmcs1133_b5a';
 
@@ -144,120 +204,6 @@ LVFB_VDIV_150V_INPUT_RESISTANCE_OHM = 915000.0;
 
 % Approximate positive full scale voltage when biased at mid-supply.
 LVFB_VDIV_150V_MAX_BY_BIAS_V = sdpe_select(LVFB_VDIV_150V_BIAS_V > 0.0, LVFB_VDIV_150V_BIAS_V / LVFB_VDIV_150V_SENSITIVITY_V_PER_V, LVFB_VDIV_150V_RATED_VOLTAGE_V);
-
-GMP_LVFB_ID = 'gmp_lvfb_150_2ph_v2';
-
-GMP_LVFB_SCHEMA = 'half_bridge';
-
-GMP_LVFB_NAME = 'GMP LVFB 150V 2-Phase V2 Inverter Board';
-
-% Board or module name.
-GMP_LVFB_BOARD_NAME = 'GMP LVFB 2ph V6.1';
-
-% Integrated gate driver part number.
-GMP_LVFB_GATE_DRIVER = 'UCC21520DWR';
-
-% Power MOSFET part number.
-GMP_LVFB_MOSFET = 'BSC093N15NS5';
-
-% On-board current sensing device.
-GMP_LVFB_CURRENT_SENSOR_NAME = 'TMCS1133B5A';
-
-% On-board voltage sensing device.
-GMP_LVFB_VOLTAGE_SENSOR_NAME = 'AMC1311BDWVR';
-
-% Number of half-bridge phases represented by this module.
-GMP_LVFB_PHASE_COUNT = 2;
-
-% Current measurement range exported by the current sensor sub component.
-GMP_LVFB_MEASURED_CURRENT_RANGE_A = TMCS1133_B5A_RANGE_A;
-
-% Maximum allowable DC bus voltage.
-GMP_LVFB_VBUS_MAX_V = 120.0;
-
-% Maximum instantaneous peak phase current.
-GMP_LVFB_CURRENT_MAX_PEAK_A = 55.0;
-
-% Maximum continuous RMS phase current.
-GMP_LVFB_CURRENT_MAX_RMS_A = 35.0;
-
-% Recommended hardware deadtime.
-GMP_LVFB_DEADTIME_NS = 523.0;
-
-% Current sensing signal bandwidth.
-GMP_LVFB_CURRENT_BW_HZ = 300.0e3;
-
-% Current sensor ADC bias voltage.
-GMP_LVFB_CURRENT_BIAS_V = 1.65;
-
-% Configured current sensitivity.
-GMP_LVFB_CURRENT_SENSITIVITY = TMCS1133_B5A_SENSITIVITY_V_PER_A;
-
-% ADC reference scale voltage.
-GMP_LVFB_VOLTAGE_BASE_V = 3.3;
-
-% Voltage sensing ADC bias voltage.
-GMP_LVFB_VOLTAGE_BIAS_V = 0.0;
-
-% Voltage sensing bandwidth.
-GMP_LVFB_VOLTAGE_BW_HZ = 114.47e3;
-
-% Default low-side voltage divider resistance.
-GMP_LVFB_VOLTAGE_R_LOW_OHM = 15000.0;
-
-% Default high-side voltage divider resistance.
-GMP_LVFB_VOLTAGE_R_HIGH_OHM = 300000.0;
-
-% Configured voltage sensing gain.
-GMP_LVFB_VOLTAGE_SENSITIVITY = (15e3) / ((15e3) + ((300e3) * 3)) * 1.65;
-
-% Configured maximum measurable voltage.
-GMP_LVFB_VOLTAGE_MAX = 3.3 / ((15e3) / ((15e3) + ((300e3) * 3)) * 1.65);
-
-% Optional local DC bus capacitance.
-GMP_LVFB_BUS_CAPACITANCE_F = 0.0;
-
-% Whether this module declares a local bus capacitor.
-GMP_LVFB_HAS_LOCAL_BUS_CAP = GMP_LVFB_BUS_CAPACITANCE_F > 0.0;
-
-TLE4971A025_ID = 'tle4971a025';
-
-TLE4971A025_SCHEMA = 'current_sensor';
-
-TLE4971A025_NAME = 'TLE4971A025 Coreless Hall Current Sensor';
-
-% Main sensing IC or technology name.
-TLE4971A025_CHIP = 'TLE4971A025';
-
-% Current sensing technology, such as Hall, shunt, or fluxgate.
-TLE4971A025_SENSOR_TYPE = 'Coreless Hall';
-
-% Nominal measurable current range.
-TLE4971A025_RANGE_A = 25.0;
-
-% Minimum output voltage.
-TLE4971A025_OUTPUT_MIN_V = 0.0;
-
-% Maximum output voltage.
-TLE4971A025_OUTPUT_MAX_V = 3.3;
-
-% Zero-current output bias.
-TLE4971A025_BIAS_V = 1.65;
-
-% Current sensor sensitivity.
-TLE4971A025_SENSITIVITY_MV_PER_A = 48.0;
-
-% Typical small-signal bandwidth.
-TLE4971A025_BANDWIDTH_HZ = 210000.0;
-
-% Sensor internal series resistance.
-TLE4971A025_INTERNAL_RESISTANCE_OHM = 0.0;
-
-% Current sensor sensitivity converted to V/A.
-TLE4971A025_SENSITIVITY_V_PER_A = TLE4971A025_SENSITIVITY_MV_PER_A / 1000.0;
-
-% Positive current range implied by bias and sensitivity.
-TLE4971A025_MAX_CURRENT_FROM_BIAS_A = TLE4971A025_BIAS_V / TLE4971A025_SENSITIVITY_V_PER_A;
 
 HARMONIA_3PH_LC_FILTER_ID = 'gmp_harmonia_3ph_lc_filter';
 
@@ -337,32 +283,70 @@ HARMONIA_3PH_LC_FILTER_PH_CURRENT_SENSITIVITY_MV_A = TLE4971A025_SENSITIVITY_MV_
 % Zero-current output bias.
 HARMONIA_3PH_LC_FILTER_PH_CURRENT_ZERO_BIAS_V = TLE4971A025_BIAS_V;
 
-%% Controller Features
+TLE4971A025_ID = 'tle4971a025';
+
+TLE4971A025_SCHEMA = 'current_sensor';
+
+TLE4971A025_NAME = 'TLE4971A025 Coreless Hall Current Sensor';
+
+% Main sensing IC or technology name.
+TLE4971A025_CHIP = 'TLE4971A025';
+
+% Current sensing technology, such as Hall, shunt, or fluxgate.
+TLE4971A025_SENSOR_TYPE = 'Coreless Hall';
+
+% Nominal measurable current range.
+TLE4971A025_RANGE_A = 25.0;
+
+% Minimum output voltage.
+TLE4971A025_OUTPUT_MIN_V = 0.0;
+
+% Maximum output voltage.
+TLE4971A025_OUTPUT_MAX_V = 3.3;
+
+% Zero-current output bias.
+TLE4971A025_BIAS_V = 1.65;
+
+% Current sensor sensitivity.
+TLE4971A025_SENSITIVITY_MV_PER_A = 48.0;
+
+% Typical small-signal bandwidth.
+TLE4971A025_BANDWIDTH_HZ = 210000.0;
+
+% Sensor internal series resistance.
+TLE4971A025_INTERNAL_RESISTANCE_OHM = 0.0;
+
+% Current sensor sensitivity converted to V/A.
+TLE4971A025_SENSITIVITY_V_PER_A = TLE4971A025_SENSITIVITY_MV_PER_A / 1000.0;
+
+% Positive current range implied by bias and sensitivity.
+TLE4971A025_MAX_CURRENT_FROM_BIAS_A = TLE4971A025_BIAS_V / TLE4971A025_SENSITIVITY_V_PER_A;
+
+%% Project selection macros
 % Enable Discrete PID controller anti-saturation algorithm.
 USE_DEBUG_DISCRETE_PID = true;
 
-%% Sensing and Calibration
 % Enable ADC calibration.
 SPECIFY_ENABLE_ADC_CALIBRATE = true;
 
-%% Diagnostics and Simulation
-% ENABLE_GMP_DL_PIL_SIM is disabled in the SDPE project requirement.
-% ENABLE_GMP_DL_PIL_SIM = true;
+% ENBALE_GMP_DL_PIL_SIM is disabled in the SDPE project requirement.
+% ENBALE_GMP_DL_PIL_SIM = true;
 
 % GMP_CTL_FM_CONFIG_ENABLE_DEBUG_INFO is disabled in the SDPE project requirement.
 % GMP_CTL_FM_CONFIG_ENABLE_DEBUG_INFO = true;
 
-%% Control Mode
-% 1 open-loop R load; 2 current-loop R load; 3 signed grid P/Q current loop; 4 grid power loop; 5 DC-bus rectifier loop.
-% Options: (1), (2), (3), (4), (5)
-BUILD_LEVEL = 5;
+%% Project option macros
+% Single-phase inverter incremental debug build level.
+% BUILD_LEVEL 1: modulator and resistive-load validation.
+% BUILD_LEVEL 2: voltage closed-loop validation.
+% BUILD_LEVEL 3: current-loop and full controller validation.
+% Options: (1), (2), (3)
+BUILD_LEVEL = 1;
 
-%% PWM Modulator
 % Use negative PWM modulator logic.
 % Options: (0), (1)
 PWM_MODULATOR_USING_NEGATIVE_LOGIC = 0;
 
-%% PWM Channel Mapping
 % PWM base for inverter phase L.
 % Options: IRIS_EPWM1_BASE, IRIS_EPWM2_BASE, IRIS_EPWM3_BASE, IRIS_EPWM4_BASE, IRIS_EPWM5_BASE, IRIS_EPWM6_BASE
 PHASE_L_BASE = 'IRIS_EPWM3_BASE';
@@ -371,7 +355,6 @@ PHASE_L_BASE = 'IRIS_EPWM3_BASE';
 % Options: IRIS_EPWM1_BASE, IRIS_EPWM2_BASE, IRIS_EPWM3_BASE, IRIS_EPWM4_BASE, IRIS_EPWM5_BASE, IRIS_EPWM6_BASE
 PHASE_N_BASE = 'IRIS_EPWM4_BASE';
 
-%% Gate Driver GPIO
 % Gate-driver enable GPIO.
 % Options: IRIS_GPIO1, IRIS_GPIO2, IRIS_GPIO3, IRIS_GPIO4, IRIS_GPIO5, IRIS_GPIO6
 PWM_ENABLE_PORT = 'IRIS_GPIO1';
@@ -380,7 +363,6 @@ PWM_ENABLE_PORT = 'IRIS_GPIO1';
 % Options: IRIS_GPIO1, IRIS_GPIO2, IRIS_GPIO3, IRIS_GPIO4, IRIS_GPIO5, IRIS_GPIO6
 PWM_RESET_PORT = 'IRIS_GPIO3';
 
-%% Status GPIO
 % System status LED.
 % Options: IRIS_LED1, IRIS_LED2, LED_R, LED_G
 SYSTEM_LED = 'IRIS_LED1';
@@ -389,7 +371,6 @@ SYSTEM_LED = 'IRIS_LED1';
 % Options: IRIS_LED1, IRIS_LED2, LED_R, LED_G
 CONTROLLER_LED = 'IRIS_LED2';
 
-%% AC Current Sensing
 % AC current ADC result register base.
 % Options: ADC_CH1_RESULT_BASE, ADC_CH2_RESULT_BASE, ADC_CH3_RESULT_BASE, ADC_CH4_RESULT_BASE, ADC_CH5_RESULT_BASE, ADC_CH6_RESULT_BASE, ADC_CH7_RESULT_BASE, ADC_CH8_RESULT_BASE, ADC_CH9_RESULT_BASE, ADC_CH10_RESULT_BASE, ADC_CH11_RESULT_BASE, ADC_CH12_RESULT_BASE
 INV_IAC_RESULT_BASE = 'ADC_CH1_RESULT_BASE';
@@ -398,7 +379,6 @@ INV_IAC_RESULT_BASE = 'ADC_CH1_RESULT_BASE';
 % Options: ADC_CH1, ADC_CH2, ADC_CH3, ADC_CH4, ADC_CH5, ADC_CH6, ADC_CH7, ADC_CH8, ADC_CH9, ADC_CH10, ADC_CH11, ADC_CH12
 INV_IAC = 'ADC_CH1';
 
-%% AC Voltage Sensing
 % AC voltage ADC result register base.
 % Options: ADC_CH1_RESULT_BASE, ADC_CH2_RESULT_BASE, ADC_CH3_RESULT_BASE, ADC_CH4_RESULT_BASE, ADC_CH5_RESULT_BASE, ADC_CH6_RESULT_BASE, ADC_CH7_RESULT_BASE, ADC_CH8_RESULT_BASE, ADC_CH9_RESULT_BASE, ADC_CH10_RESULT_BASE, ADC_CH11_RESULT_BASE, ADC_CH12_RESULT_BASE
 INV_VAC_RESULT_BASE = 'ADC_CH2_RESULT_BASE';
@@ -407,7 +387,6 @@ INV_VAC_RESULT_BASE = 'ADC_CH2_RESULT_BASE';
 % Options: ADC_CH1, ADC_CH2, ADC_CH3, ADC_CH4, ADC_CH5, ADC_CH6, ADC_CH7, ADC_CH8, ADC_CH9, ADC_CH10, ADC_CH11, ADC_CH12
 INV_VAC = 'ADC_CH2';
 
-%% DC Bus Sensing
 % DC bus voltage ADC result register base.
 % Options: ADC_CH1_RESULT_BASE, ADC_CH2_RESULT_BASE, ADC_CH3_RESULT_BASE, ADC_CH4_RESULT_BASE, ADC_CH5_RESULT_BASE, ADC_CH6_RESULT_BASE, ADC_CH7_RESULT_BASE, ADC_CH8_RESULT_BASE, ADC_CH9_RESULT_BASE, ADC_CH10_RESULT_BASE, ADC_CH11_RESULT_BASE, ADC_CH12_RESULT_BASE
 INV_VBUS_RESULT_BASE = 'ADC_CH3_RESULT_BASE';
@@ -436,25 +415,19 @@ DSP_C2000_DSP_TIME_DIV = 120000 / CTRL_PWM_CMP_MAX / 2;
 CTRL_ADC_VOLTAGE_REF = 3.3;
 
 % Rated DC bus voltage.
-CTRL_DCBUS_VOLTAGE = 72.0;
+CTRL_DCBUS_VOLTAGE = 60.0;
 
-% Nominal point inside the required 29 V to 43 V AC input range.
-CTRL_GRID_VOLTAGE_RMS = 36.0;
+% Rated AC grid/load RMS voltage.
+CTRL_GRID_VOLTAGE_RMS = 24.0;
 
 % Rated AC output RMS current.
 CTRL_RATED_CURRENT_RMS = 10.0;
 
-% Peak-voltage per-unit base corresponding to 43 Vrms.
-CTRL_VOLTAGE_BASE = 60.8112;
+% Voltage per-unit base, using peak value.
+CTRL_VOLTAGE_BASE = 34.0;
 
 % Current per-unit base, using peak value.
 CTRL_CURRENT_BASE = 14.14;
-
-% Total AC-side filter/grid inductance in H.
-CTRL_AC_INDUCTANCE = 0.003;
-
-% Total AC-side series resistance in Ohm.
-CTRL_AC_RESISTANCE = 0.1;
 
 % AC voltage sensing gain from the grid LC filter voltage sense path.
 CTRL_AC_VOLTAGE_SENSITIVITY = HARMONIA_3PH_LC_FILTER_PH_VOLTAGE_SENSE_GAIN;
@@ -483,20 +456,11 @@ CTRL_MAX_HW_CURRENT = GMP_LVFB_CURRENT_MAX_RMS_A;
 % Project DC bus over-voltage protection threshold.
 CTRL_PROT_VBUS_MAX = 100.0;
 
-% Fast AC peak-current trip threshold in A.
-CTRL_PROT_IAC_PEAK_MAX = CTRL_MAX_HW_CURRENT * 0.9 * 1.41421356;
-
-% Maximum unsaturated modulation command before controller-divergence trip.
-CTRL_PROT_VCTRL_MAX_PU = 1.5;
-
-% Minimum precharged DC bus accepted before active boost takeover.
-CTRL_DCBUS_READY_MIN = CTRL_GRID_VOLTAGE_RMS_MIN * 1.2;
-
-% Maximum physical DC-bus voltage accepted by the startup state machine.
-CTRL_DCBUS_READY_MAX = CTRL_PROT_VBUS_MAX;
-
 % ADC calibration timeout in ms.
 TIMEOUT_ADC_CALIB_MS = 3000;
+
+% SPLL close-loop convergence criterion.
+CTRL_SPLL_EPSILON = float2ctrl(0.005);
 
 %% Local helpers
 function value = sdpe_select(condition, true_value, false_value)

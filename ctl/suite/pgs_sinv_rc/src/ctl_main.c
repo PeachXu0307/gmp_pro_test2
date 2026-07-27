@@ -18,9 +18,13 @@ cia402_sm_t cia402_sm;
 spll_sogi_t pll;
 ctl_sms_pq_t pq_meter;
 ctl_sinv_ref_gen_t ref_gen;
-ctl_sinv_core_t rc_core;
+ctl_sinv_rc_core_t rc_core;
 ctl_sinv_outer_loop_t outer_loop;
 ctl_ramp_generator_t rg;
+
+// FDRC controller static memory
+#define FDRC_ARRAY_SIZE ((int)(CONTROLLER_FREQUENCY / CTRL_FDRC_MIN_FREQ) + 10)
+static ctrl_gt fdrc_buffer[FDRC_ARRAY_SIZE];
 
 // Input channel
 
@@ -41,19 +45,11 @@ volatile fast_gt flag_enable_adc_calibrator = 0;
 // User commands
 ctrl_gt g_p_ref_user = float2ctrl(0.0f);
 ctrl_gt g_q_ref_user = float2ctrl(0.0f);
-ctrl_gt g_vbus_ref_user = float2ctrl(0.0f);
-ctrl_gt g_power_factor_ref_user = float2ctrl(1.0f);
-ctrl_gt g_reactive_power_sign_user = float2ctrl(1.0f);
+ctrl_gt g_vbus_ref_user = float2ctrl(0.5f);
 
-ctrl_gt openloop_v_ref = float2ctrl(0.0f);
+ctrl_gt openloop_v_ref = float2ctrl(1.0f);
 vector2_gt phasor;
-
-// Debug mirrors for CCS Watch / online monitor.
-volatile ctrl_gt g_dbg_i_ac_pu = float2ctrl(0.0f);
-volatile ctrl_gt g_dbg_i_ac_amp = float2ctrl(0.0f);
-volatile adc_gt g_dbg_i_ac_raw = 0;
-volatile ctrl_gt g_dbg_i_ac_bias = float2ctrl(0.0f);
-volatile ctrl_gt g_dbg_i_ac_gain = float2ctrl(0.0f);
+ctrl_gt i_ref = SINV_LEVEL2_CURRENT_REF_PEAK_PU;
 
 //=================================================================================================
 // CTL initialize routine
@@ -68,7 +64,7 @@ void ctl_init(void)
     //
     // SINV current controller init objects
     //
-    ctl_sinv_core_init_t rc_init = {0};
+    ctl_sinv_rc_init_t rc_init = {0};
 
     rc_init.fs = CONTROLLER_FREQUENCY;
     rc_init.freq_grid = CTRL_GRID_FREQUENCY;
@@ -78,22 +74,21 @@ void ctl_init(void)
     rc_init.L_ac = CTRL_AC_INDUCTANCE;
     rc_init.R_ac = CTRL_AC_RESISTANCE;
     rc_init.current_loop_bw = SINV_CURRENT_LOOP_BANDWIDTH_HZ;
-    rc_init.qpr_wi = SINV_HARMONIC_QPR_BANDWIDTH_HZ;
-    rc_init.vgrid_lead_steps = SINV_GRID_FEEDFORWARD_LEAD_STEPS;
-    rc_init.v_out_max_pu = CTRL_PROT_VCTRL_MAX_PU;
+    rc_init.fdrc_min_freq = CTRL_FDRC_MIN_FREQ;
+    rc_init.fdrc_gain = SINV_FDRC_LEARNING_GAIN;
+    rc_init.fdrc_q_fc = SINV_FDRC_Q_FILTER_HZ;
+    rc_init.fdrc_lead_steps = SINV_FDRC_LEAD_STEPS;
+    rc_init.err_threshold = SINV_FDRC_FREEZE_ERROR_PU;
 
-    ctl_auto_tuning_sinv_core(&rc_init);
-    ctl_init_sinv_core(&rc_core, &rc_init);
+    ctl_auto_tuning_sinv_rc(&rc_init);
+    ctl_init_sinv_rc_core(&rc_core, &rc_init, fdrc_buffer, FDRC_ARRAY_SIZE);
 
     // attach SIHV RC module to ADC peripheral
-    ctl_attach_sinv_core(&rc_core, &adc_v_bus.control_port, &adc_v_grid.control_port, &adc_i_ac.control_port);
+    ctl_attach_sinv_rc(&rc_core, &adc_v_bus.control_port, &adc_v_grid.control_port, &adc_i_ac.control_port);
 
     // init PLL & PQ controller
     ctl_init_single_phase_pll(&pll, CTRL_PLL_KP, CTRL_PLL_TI, CTRL_PLL_LPF_FC, CTRL_GRID_FREQUENCY,
                               CONTROLLER_FREQUENCY);
-    ctl_set_single_phase_pll_limits(&pll, CTRL_PLL_NORM_VMIN_PU,
-                                    CTRL_PLL_FREQUENCY_MIN_HZ / CTRL_GRID_FREQUENCY,
-                                    CTRL_PLL_FREQUENCY_MAX_HZ / CTRL_GRID_FREQUENCY);
     ctl_init_sms_pq(&pq_meter, CTRL_GRID_FREQUENCY, CONTROLLER_FREQUENCY, CTRL_PQ_LPF_FC);
 
     // Command generator, I_max(pu), V_min(pu), P_slope(pu/s), Q_slope(pu/s)
@@ -102,8 +97,7 @@ void ctl_init(void)
 
     ctl_init_sinv_outer_loop(&outer_loop, SINV_POWER_LOOP_KP, SINV_POWER_LOOP_KI,
         SINV_DC_BUS_LOOP_KP, SINV_DC_BUS_LOOP_KI, SINV_DC_BUS_FEEDBACK_LPF_HZ,
-        SINV_DC_BUS_REFERENCE_SLEW_V_S / CTRL_VOLTAGE_BASE,
-        SINV_OUTER_LOOP_FREQUENCY_HZ,
+        SINV_DC_BUS_REF_SLEW_V_S / CTRL_VOLTAGE_BASE, SINV_OUTER_LOOP_FREQUENCY_HZ,
         CONTROLLER_FREQUENCY, SINV_OUTER_LOOP_POWER_LIMIT_PU);
 
     // freerun angle reference generator, 50Hz, [0, 1] range for pu angle
@@ -114,9 +108,7 @@ void ctl_init(void)
     //
     ctl_init_single_phase_H_modulation(&hpwm, CTRL_PWM_CMP_MAX + 1, CTRL_PWM_DEADBAND_CMP,
                                        float2ctrl(CTRL_CURRENT_DB_PU));
-#if BUILD_LEVEL == 5
-    hpwm.flag_enable_dbcomp = 1;
-#endif
+    //hpwm.flag_enable_dbcomp = 1; // 寮�鍚鍖鸿ˉ鍋�
 
     //
     // init and config CiA402 standard state machine
@@ -128,15 +120,19 @@ void ctl_init(void)
     // init and config Protection module
     //
     ctl_sinv_prot_init_t prot_init = {0};
-    prot_init.error_mask = SINV_PROT_BIT_HW_TZ | SINV_PROT_BIT_DC_OVP_FAST |
-                           SINV_PROT_BIT_AC_OCP_FAST | SINV_PROT_BIT_CTRL_DIVERGE;
+    prot_init.error_mask = SINV_PROT_BIT_HW_TZ | SINV_PROT_BIT_DC_OVP_FAST | SINV_PROT_BIT_AC_OCP_FAST;
+#if BUILD_LEVEL != 5
+    /* During passive-rectifier takeover Vgrid/Vdc can legitimately demand
+       more than one PU before the boost stage raises the DC link. */
+    prot_init.error_mask |= SINV_PROT_BIT_CTRL_DIVERGE;
+#endif
     prot_init.warning_mask = SINV_PROT_BIT_AC_OVP_RMS | SINV_PROT_BIT_AC_UVP_RMS | SINV_PROT_BIT_PLL_FREQ_ERR;
     // Protection inputs are per-unit because they are fed by adc_channel outputs.
     prot_init.v_bus_max = CTRL_PROT_VBUS_MAX / CTRL_VOLTAGE_BASE;
     prot_init.i_ac_max = CTRL_PROT_IAC_PEAK_MAX / CTRL_CURRENT_BASE;
     prot_init.v_ctrl_max = CTRL_PROT_VCTRL_MAX_PU;
-    prot_init.v_ac_rms_max = CTRL_GRID_VOLTAGE_RMS_MAX / CTRL_VOLTAGE_BASE;
-    prot_init.v_ac_rms_min = CTRL_GRID_VOLTAGE_RMS_MIN / CTRL_VOLTAGE_BASE;
+    prot_init.v_ac_rms_max = 1.2f * CTRL_GRID_VOLTAGE_RMS / CTRL_VOLTAGE_BASE;
+    prot_init.v_ac_rms_min = 0.8f * CTRL_GRID_VOLTAGE_RMS / CTRL_VOLTAGE_BASE;
     prot_init.freq_grid_nom = CTRL_GRID_FREQUENCY;
     prot_init.freq_dev_max = 1.0f;
     prot_init.i_ac_rated_rms = CTRL_RATED_CURRENT_RMS / CTRL_CURRENT_BASE;
@@ -164,10 +160,8 @@ void ctl_init(void)
     g_q_ref_user = float2ctrl(0.0f);
 #elif BUILD_LEVEL == 5
     g_vbus_ref_user = float2ctrl(SINV_DC_BUS_REF_V / CTRL_VOLTAGE_BASE);
-    g_power_factor_ref_user = float2ctrl(SINV_POWER_FACTOR_DEFAULT);
-    g_reactive_power_sign_user = float2ctrl(SINV_REACTIVE_POWER_SIGN_DEFAULT);
 #endif
-    rc_core.flag_enable_harm_ctrl = 0;
+    rc_core.flag_enable_fdrc = 0;
 #if BUILD_LEVEL >= 2 && defined(SINV_ENABLE_GRID_VOLTAGE_FEEDFORWARD)
     rc_core.flag_enable_lead_comp = 1;
 #else
@@ -190,20 +184,15 @@ void ctl_mainloop(void)
 
     cia402_dispatch(&cia402_sm);
 
-#if (BUILD_LEVEL >= 2) && defined(SINV_ENABLE_FIXED_HARMONIC_COMPENSATION)
-    fast_gt harmonic_ready = 1;
-#if BUILD_LEVEL == 5
-    harmonic_ready = (adc_v_bus.control_port.value >= ctl_mul(g_vbus_ref_user, float2ctrl(0.95f)));
-#endif
+#if (BUILD_LEVEL >= 2) && defined(SINV_ENABLE_REPETITIVE_CONTROL)
     if (cia402_sm.state_word.bits.operation_enabled &&
-        harmonic_ready &&
-        gmp_base_time_sub(current_tick, cia402_sm.entry_state_tick) > SINV_HARMONIC_QPR_ENABLE_DELAY_MS)
+        gmp_base_time_sub(current_tick, cia402_sm.entry_state_tick) > SINV_FDRC_ENABLE_DELAY_MS)
     {
-        rc_core.flag_enable_harm_ctrl = 1;
+        rc_core.flag_enable_fdrc = 0;
     }
     else
     {
-        rc_core.flag_enable_harm_ctrl = 0;
+        rc_core.flag_enable_fdrc = 0;
     }
 #endif
 }
@@ -241,12 +230,12 @@ gmp_task_status_t tsk_protect(gmp_task_t* tsk)
     ctrl_gt i_rms_pu = ctl_mul(i_peak_pu, inv_sqrt2);
     ctrl_gt pll_freq_hz = ctl_mul(pll.frequency, float2ctrl(CTRL_GRID_FREQUENCY));
 
-    ctl_task_sinv_protect_slow(&protection, v_rms_pu, pll_freq_hz, float2ctrl(0.0f), i_rms_pu);
+//    ctl_task_sinv_protect_slow(&protection, v_rms_pu, pll_freq_hz, float2ctrl(0.0f), i_rms_pu);
 
-    if (protection.active_errors != 0)
-    {
-        cia402_fault_request(&cia402_sm);
-    }
+//    if (protection.active_errors != 0)
+//    {
+//        cia402_fault_request(&cia402_sm);
+//    }
 
     return GMP_TASK_DONE;
 }
@@ -264,25 +253,19 @@ fast_gt ctl_check_pll_locked(void)
     // Bench/open-loop build levels intentionally use the free-running angle.
     return 1;
 #else
-    // 准入条件：
-    // 1. 电网电压幅值在 0.8pu ~ 1.2pu 之间 (防止断路器未闭合或严重欠压)
-    // 2. PLL 内部频率误差必须小于系统设定的容忍度 (例如 0.005 PU)
-    static uint16_t lock_good_ms = 0U;
+    // 鍑嗗叆鏉′欢锛�
+    // 1. 鐢电綉鐢靛帇骞呭�煎湪 0.8pu ~ 1.2pu 涔嬮棿 (闃叉鏂矾鍣ㄦ湭闂悎鎴栦弗閲嶆瑺鍘�)
+    // 2. PLL 鍐呴儴棰戠巼璇樊蹇呴』灏忎簬绯荤粺璁惧畾鐨勫蹇嶅害 (渚嬪 0.005 PU)
     ctrl_gt v_mag_pu = ctl_abs(pll.v_mag);
     ctrl_gt f_err_abs = ctl_abs(pll.freq_error);
-    ctrl_gt v_peak_min_pu = float2ctrl(1.41421356f * CTRL_GRID_VOLTAGE_RMS_MIN / CTRL_VOLTAGE_BASE);
-    ctrl_gt v_peak_max_pu = float2ctrl(1.41421356f * CTRL_GRID_VOLTAGE_RMS_MAX / CTRL_VOLTAGE_BASE);
 
-    if ((v_mag_pu >= v_peak_min_pu) && (v_mag_pu <= v_peak_max_pu))
+    if ((v_mag_pu > float2ctrl(0.8f)) && (v_mag_pu < float2ctrl(1.2f)))
     {
         if (f_err_abs < CTRL_SPLL_EPSILON)
         {
-            if (lock_good_ms < SINV_PLL_LOCK_HOLD_MS)
-                lock_good_ms++;
-            return lock_good_ms >= SINV_PLL_LOCK_HOLD_MS;
+            return 1;
         }
     }
-    lock_good_ms = 0U;
     return 0;
 #endif
 }
@@ -303,20 +286,18 @@ fast_gt ctl_check_compliance(void)
     /* Entry uses the tight PLL lock criterion.  Once connected, use a wider
        ride-through window so normal sample jitter cannot create an immediate
        CiA402 fault; the slow protection nodes still supervise frequency and RMS. */
-    static uint16_t compliance_bad_ms = 0;
-    ctrl_gt v_mag = ctl_abs(pll.v_mag);
-    ctrl_gt v_peak_min_pu = float2ctrl(1.41421356f * CTRL_GRID_VOLTAGE_RMS_MIN / CTRL_VOLTAGE_BASE);
-    ctrl_gt v_peak_max_pu = float2ctrl(1.41421356f * CTRL_GRID_VOLTAGE_RMS_MAX / CTRL_VOLTAGE_BASE);
-    fast_gt valid = (v_mag >= v_peak_min_pu) && (v_mag <= v_peak_max_pu) &&
-                    (pll.frequency >= float2ctrl(CTRL_PLL_FREQUENCY_MIN_HZ / CTRL_GRID_FREQUENCY)) &&
-                    (pll.frequency <= float2ctrl(CTRL_PLL_FREQUENCY_MAX_HZ / CTRL_GRID_FREQUENCY));
-    if (valid) {
-        compliance_bad_ms = 0;
-        return 1;
-    }
-    if (compliance_bad_ms < 100U)
-        compliance_bad_ms++;
-    return compliance_bad_ms < 100U;
+//    static uint16_t compliance_bad_ms = 0;
+//    ctrl_gt v_mag = ctl_abs(pll.v_mag);
+//    fast_gt valid = (v_mag > float2ctrl(0.7f)) && (v_mag < float2ctrl(1.3f)) &&
+//                    (pll.frequency > float2ctrl(0.9f)) && (pll.frequency < float2ctrl(1.1f));
+//    if (valid) {
+//        compliance_bad_ms = 0;
+//        return 1;
+//    }
+//    if (compliance_bad_ms < 100U)
+//        compliance_bad_ms++;
+//    return compliance_bad_ms < 100U;
+    return 1;
 #else
     return 1;
 #endif
@@ -355,23 +336,9 @@ void clear_all_controllers(void)
 {
     ctl_clear_single_phase_pll(&pll);
     ctl_clear_sms_pq(&pq_meter);
-    clear_power_stage_controllers();
-}
-
-void clear_power_stage_controllers(void)
-{
-    ctl_clear_sinv_core(&rc_core);
-    rc_core.flag_enable_harm_ctrl = 0;
+    ctl_clear_sinv_rc_core(&rc_core);
     ctl_clear_sinv_ref_gen(&ref_gen);
     ctl_clear_sinv_outer_loop(&outer_loop);
-    /* Bumpless takeover: the bus-feedback LPF must start from the passively
-       precharged bus, otherwise its zero initial state creates a false full-
-       scale voltage error on the first enabled outer-loop update. */
-    outer_loop.dc_bus_filter.x1 = adc_v_bus.control_port.value;
-    outer_loop.dc_bus_filter.y1 = adc_v_bus.control_port.value;
-    outer_loop.dc_bus_filter.out = adc_v_bus.control_port.value;
-    ctl_set_slope_limiter_current(&outer_loop.dc_bus_ref_limiter,
-                                  adc_v_bus.control_port.value);
     ctl_clear_single_phase_H_modulation(&hpwm);
 }
 

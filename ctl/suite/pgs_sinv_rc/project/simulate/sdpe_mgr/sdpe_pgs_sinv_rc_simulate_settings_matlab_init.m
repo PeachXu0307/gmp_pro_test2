@@ -49,16 +49,16 @@ CTRL_ADC_RESOLUTION = 12;
 CTRL_ADC_VOLTAGE_REF = 3.3;
 
 % Rated and nominal DC-bus voltage.
-CTRL_DCBUS_VOLTAGE = 72.0;
+CTRL_DCBUS_VOLTAGE = 60.0;
 
-% Nominal point inside the required 29 V to 43 V AC input range.
-CTRL_GRID_VOLTAGE_RMS = 36.0;
+% Nominal grid/load RMS voltage.
+CTRL_GRID_VOLTAGE_RMS = 24.0;
 
 % Rated RMS AC current.
 CTRL_RATED_CURRENT_RMS = 10.0;
 
-% Peak-voltage PU base corresponding to 43 Vrms.
-CTRL_VOLTAGE_BASE = 60.8112;
+% Peak voltage PU base.
+CTRL_VOLTAGE_BASE = 34.0;
 
 % Peak current PU base.
 CTRL_CURRENT_BASE = 14.14;
@@ -75,14 +75,14 @@ SINV_FILTER_CAPACITANCE_F = 22e-6;
 % Filter capacitor ESR.
 SINV_FILTER_CAP_ESR_OHM = 0.10;
 
-% External DC-link capacitance sized for less than 2 percent 100 Hz ripple at 120 W and 72 V.
-SINV_DC_CAPACITANCE_F = 4700e-6;
+% DC-link capacitance.
+SINV_DC_CAPACITANCE_F = 2200e-6;
 
 % Resistive load for levels 1 and 2.
 SINV_RLOAD_OHM = 12.0;
 
-% DC-side load for level 5. At 72 V this draws 120 W.
-SINV_RECTIFIER_RLOAD_OHM = 43.2;
+% DC-side load for level 5. At 60 V this draws 120 W, within the configured converter current rating.
+SINV_RECTIFIER_RLOAD_OHM = 30.0;
 
 % AC voltage sensor sensitivity in V/V.
 CTRL_AC_VOLTAGE_SENSITIVITY = 0.020;
@@ -96,8 +96,8 @@ CTRL_AC_CURRENT_SENSITIVITY = 0.150;
 % AC current ADC bias.
 CTRL_AC_CURRENT_BIAS = 1.65;
 
-% DC bus sensor sensitivity; 3.3 V full scale corresponds to 110 V.
-CTRL_DC_VOLTAGE_SENSITIVITY = 0.030;
+% DC bus voltage sensor sensitivity in V/V.
+CTRL_DC_VOLTAGE_SENSITIVITY = 0.040;
 
 % DC bus voltage ADC bias.
 CTRL_DC_VOLTAGE_BIAS = 0.0;
@@ -111,8 +111,8 @@ CTRL_PROT_IAC_PEAK_MAX = 18.0;
 % Controller divergence threshold; BUILD_LEVEL 5 masks it only during passive-rectifier takeover.
 CTRL_PROT_VCTRL_MAX_PU = 1.5;
 
-% Minimum precharged DC bus accepted before active boost takeover.
-CTRL_DCBUS_READY_MIN = 35.0;
+% Minimum precharged DC bus accepted by startup.
+CTRL_DCBUS_READY_MIN = 25.0;
 
 % Maximum DC bus accepted by startup.
 CTRL_DCBUS_READY_MAX = 90.0;

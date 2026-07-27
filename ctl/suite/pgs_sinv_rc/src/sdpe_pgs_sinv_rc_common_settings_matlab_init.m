@@ -15,8 +15,8 @@ PGS_SINV_RC_COMMON_SDPE_PROJECT_VERSION = '1.0.0';
 PGS_SINV_RC_COMMON_SDPE_PROJECT_UPDATED_AT = '2026-07-15';
 
 %% Control Features
-% Enable delayed insertion of the fixed-frequency harmonic QPR bank.
-SINV_ENABLE_FIXED_HARMONIC_COMPENSATION = true;
+% Enable delayed insertion of the frequency-adaptive repetitive controller.
+SINV_ENABLE_REPETITIVE_CONTROL = true;
 
 % Enable grid-voltage feedforward for closed-current-loop build levels.
 SINV_ENABLE_GRID_VOLTAGE_FEEDFORWARD = true;
@@ -62,20 +62,23 @@ CTRL_CURRENT_DB_PU = 0.01;
 % QPR current-loop crossover target in Hz.
 SINV_CURRENT_LOOP_BANDWIDTH_HZ = 600.0;
 
-% Harmonic QPR bandwidth in Hz; wide enough for grid tolerance, narrow enough for selective damping.
-SINV_HARMONIC_QPR_BANDWIDTH_HZ = 4.0;
+% Minimum fundamental tracked by FDRC in Hz.
+CTRL_FDRC_MIN_FREQ = 45.0;
 
-% Settling time before fixed harmonic resonant compensators are inserted.
-SINV_HARMONIC_QPR_ENABLE_DELAY_MS = 600;
+% Settling time before repetitive control starts learning.
+SINV_FDRC_ENABLE_DELAY_MS = 300;
 
-% Fixed harmonic QPR output gain scale; keeps harmonic compensators corrective instead of dominant.
-SINV_HARMONIC_QPR_GAIN_SCALE = 0.15;
+% Repetitive-control learning gain.
+SINV_FDRC_LEARNING_GAIN = 0.10;
 
-% Highest enabled fixed harmonic order; keep low-order compensation first for hardware robustness.
-SINV_HARMONIC_QPR_MAX_ORDER = 7;
+% FDRC robustness-filter cutoff frequency.
+SINV_FDRC_Q_FILTER_HZ = 1000.0;
 
-% Grid-voltage feedforward lead compensation in controller samples.
-SINV_GRID_FEEDFORWARD_LEAD_STEPS = 3.0;
+% Plant-delay compensation in controller samples.
+SINV_FDRC_LEAD_STEPS = 3.0;
+
+% Current-error threshold above which RC learning is frozen.
+SINV_FDRC_FREEZE_ERROR_PU = 0.05;
 
 % BUILD_LEVEL 1 sinusoidal H-bridge voltage amplitude.
 SINV_LEVEL1_VOLTAGE_REF_PU = 0.35;
@@ -99,7 +102,7 @@ SINV_POWER_LOOP_KP = 0.6;
 SINV_POWER_LOOP_KI = 8.0;
 
 % BUILD_LEVEL 5 physical DC bus voltage target.
-SINV_DC_BUS_REF_V = 72.0;
+SINV_DC_BUS_REF_V = 60.0;
 
 % DC-bus outer-loop proportional gain.
 SINV_DC_BUS_LOOP_KP = 0.8;

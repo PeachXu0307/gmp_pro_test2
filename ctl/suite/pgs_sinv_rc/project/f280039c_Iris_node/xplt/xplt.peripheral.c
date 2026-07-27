@@ -32,6 +32,7 @@ adc_channel_t adc_v_bus;
 // dlog variables
 ctrl_gt dlog_mem1[DLOG_MEM_LENGTH];
 ctrl_gt dlog_mem2[DLOG_MEM_LENGTH];
+uint32_t abcdef;
 
 // GPIO port
 extern gpio_halt user_led;
@@ -89,7 +90,7 @@ void setup_peripheral(void)
     // ---------------------------------------------------------
     // This allows the step function inside ctl_dispatch to directly
     // fetch the ADC values from the control_port without parameter passing.
-    ctl_attach_sinv_core(&rc_core, &adc_v_bus.control_port, &adc_v_grid.control_port, &adc_i_ac.control_port);
+    ctl_attach_sinv_rc(&rc_core, &adc_v_bus.control_port, &adc_v_grid.control_port, &adc_i_ac.control_port);
 
     // Initialize data logger module
 //    dsa_init_basic_trigger(&trigger, DLOG_MEM_LENGTH);

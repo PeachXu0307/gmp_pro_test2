@@ -104,7 +104,7 @@
       "role": "dc_bus",
       "macro": "CTRL_DCBUS_VOLTAGE",
       "binding": {
-        "float": "72.0"
+        "float": "60.0"
       },
       "description": "Rated and nominal DC-bus voltage."
     },
@@ -112,9 +112,9 @@
       "role": "grid_rms",
       "macro": "CTRL_GRID_VOLTAGE_RMS",
       "binding": {
-        "float": "36.0"
+        "float": "24.0"
       },
-      "description": "Nominal point inside the required 29 V to 43 V AC input range."
+      "description": "Nominal grid/load RMS voltage."
     },
     {
       "role": "current_rms",
@@ -128,9 +128,9 @@
       "role": "voltage_base",
       "macro": "CTRL_VOLTAGE_BASE",
       "binding": {
-        "float": "60.8112"
+        "float": "34.0"
       },
-      "description": "Peak-voltage PU base corresponding to 43 Vrms."
+      "description": "Peak voltage PU base."
     },
     {
       "role": "current_base",
@@ -176,9 +176,9 @@
       "role": "dc_cap",
       "macro": "SINV_DC_CAPACITANCE_F",
       "binding": {
-        "float": "4700e-6"
+        "float": "2200e-6"
       },
-      "description": "External DC-link capacitance sized for less than 2 percent 100 Hz ripple at 120 W and 72 V."
+      "description": "DC-link capacitance."
     },
     {
       "role": "load_r",
@@ -192,9 +192,9 @@
       "role": "rectifier_load_r",
       "macro": "SINV_RECTIFIER_RLOAD_OHM",
       "binding": {
-        "float": "43.2"
+        "float": "30.0"
       },
-      "description": "DC-side load for level 5. At 72 V this draws 120 W."
+      "description": "DC-side load for level 5. At 60 V this draws 120 W, within the configured converter current rating."
     },
     {
       "role": "ac_voltage_gain",
@@ -232,9 +232,9 @@
       "role": "dc_voltage_gain",
       "macro": "CTRL_DC_VOLTAGE_SENSITIVITY",
       "binding": {
-        "float": "0.030"
+        "float": "0.040"
       },
-      "description": "DC bus sensor sensitivity; 3.3 V full scale corresponds to 110 V."
+      "description": "DC bus voltage sensor sensitivity in V/V."
     },
     {
       "role": "dc_voltage_bias",
@@ -272,9 +272,9 @@
       "role": "bus_ready_min",
       "macro": "CTRL_DCBUS_READY_MIN",
       "binding": {
-        "float": "35.0"
+        "float": "25.0"
       },
-      "description": "Minimum precharged DC bus accepted before active boost takeover."
+      "description": "Minimum precharged DC bus accepted by startup."
     },
     {
       "role": "bus_ready_max",

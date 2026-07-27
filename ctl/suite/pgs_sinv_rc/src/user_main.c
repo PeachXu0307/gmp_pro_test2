@@ -39,8 +39,6 @@ const gmp_param_item_t dict_m1[] = {
     {&g_p_ref_user, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
     {&g_q_ref_user, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
     {&g_vbus_ref_user, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
-    {&g_power_factor_ref_user, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
-    {&g_reactive_power_sign_user, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RW},
 
     // PLL Observations
     {&pll.v_mag, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
@@ -52,10 +50,6 @@ const gmp_param_item_t dict_m1[] = {
 
     // DC Bus Observation
     {&adc_v_bus.control_port.value, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
-    {(void*)&g_dbg_i_ac_pu, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
-    {(void*)&g_dbg_i_ac_amp, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
-    {(void*)&g_dbg_i_ac_bias, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
-    {(void*)&g_dbg_i_ac_gain, GMP_PARAM_TYPE_F32, GMP_PARAM_PERM_RO},
 };
 const uint16_t var_tunable_count = sizeof(dict_m1) / sizeof(dict_m1[0]);
 gmp_param_tunable_t tunable;

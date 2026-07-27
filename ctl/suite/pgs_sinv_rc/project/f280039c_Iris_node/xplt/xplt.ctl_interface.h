@@ -15,6 +15,7 @@
 
 #ifndef _FILE_CTL_INTERFACE_H_
 #define _FILE_CTL_INTERFACE_H_
+extern uint32_t abcdef;
 
 #ifdef __cplusplus
 extern "C"
@@ -34,7 +35,6 @@ GMP_STATIC_INLINE void ctl_input_callback(void)
     ctl_step_adc_channel(&adc_v_grid, ADC_readResult(INV_VAC_RESULT_BASE, INV_VAC));
     ctl_step_adc_channel(&adc_i_ac, ADC_readResult(INV_IAC_RESULT_BASE, INV_IAC));
     ctl_step_adc_channel(&adc_v_bus, ADC_readResult(INV_VBUS_RESULT_BASE, INV_VBUS));
-    ctl_update_adc_debug_mirrors();
 }
 
 // Output Callback
@@ -44,11 +44,32 @@ GMP_STATIC_INLINE void ctl_output_callback(void)
     EPWM_setCounterCompareValue(PHASE_L_BASE, EPWM_COUNTER_COMPARE_A, ctl_get_single_phase_modulation_L_phase(&hpwm));
     EPWM_setCounterCompareValue(PHASE_N_BASE, EPWM_COUNTER_COMPARE_A, ctl_get_single_phase_modulation_N_phase(&hpwm));
 
+//        abcdef = 234;
+//        EPWM_setCounterCompareValue(PHASE_L_BASE, EPWM_COUNTER_COMPARE_A, 10);
+//        EPWM_setCounterCompareValue(PHASE_N_BASE, EPWM_COUNTER_COMPARE_A, ctl_get_single_phase_modulation_N_phase(&hpwm));
+
     // DAC Monitor Port (Offset by 2048 for bipolar signals on a 12-bit DAC)
 #if BUILD_LEVEL == 1
     // Monitor Grid Voltage and AC Current via DAC
-    DAC_setShadowValue(IRIS_DACA_BASE, (uint16_t)(ctl_mul(openloop_v_ref, phasor.dat[phasor_sin]) * 1024.0f + 2048.0f));
+//    DAC_setShadowValue(IRIS_DACA_BASE, (uint16_t)(ctl_mul(openloop_v_ref, phasor.dat[phasor_sin]) * 1024.0f + 2048.0f));
+//    DAC_setShadowValue(IRIS_DACA_BASE, (uint16_t)(adc_v_grid.control_port.value* 2048.0f + 2048.0f));
+//    DAC_setShadowValue(IRIS_DACB_BASE, (uint16_t)(adc_i_ac.control_port.value * 2048.0f + 2048.0f));
+
+    DAC_setShadowValue(IRIS_DACA_BASE, (uint16_t)(pll.phasor.dat[phasor_sin]* 2048.0f + 2048.0f));
+    DAC_setShadowValue(IRIS_DACB_BASE, (uint16_t)(adc_v_grid.control_port.value * 2048.0f + 2048.0f));
+
+#elif BUILD_LEVEL == 2
+    // Monitor Grid Voltage and AC Current via DAC
+    DAC_setShadowValue(IRIS_DACA_BASE, (uint16_t)(rc_core.v_out_unsat* 2048.0f + 2048.0f));
     DAC_setShadowValue(IRIS_DACB_BASE, (uint16_t)(adc_i_ac.control_port.value * 2048.0f + 2048.0f));
+
+
+#elif BUILD_LEVEL == 5
+    // Monitor Grid Voltage and AC Current via DAC
+    DAC_setShadowValue(IRIS_DACA_BASE, (uint16_t)(pll.phasor.dat[phasor_sin]* 2048.0f + 2048.0f));
+    DAC_setShadowValue(IRIS_DACB_BASE, (uint16_t)(adc_v_grid.control_port.value * 2048.0f + 2048.0f));
+
+
 #endif // BUILD_LEVEL
 }
 
@@ -61,9 +82,7 @@ GMP_STATIC_INLINE void ctl_fast_enable_output(void)
     DINT;
 
     // Reset histories first and preload a zero differential-voltage command.
-    /* Preserve the PLL/PQ states that were established during CiA402 grid
-       synchronization; only reset power-stage histories before enabling PWM. */
-    clear_power_stage_controllers();
+    clear_all_controllers();
     EPWM_setCounterCompareValue(PHASE_L_BASE, EPWM_COUNTER_COMPARE_A,
                                 ctl_get_single_phase_modulation_L_phase(&hpwm));
     EPWM_setCounterCompareValue(PHASE_N_BASE, EPWM_COUNTER_COMPARE_A,
@@ -115,7 +134,6 @@ GMP_STATIC_INLINE void ctl_input_callback_pil(const gmp_sim_rx_buf_t* rx)
     ctl_step_adc_channel(&adc_v_bus, rx->adc_result[INV_ADC_ID_VBUS]);
     ctl_step_adc_channel(&adc_v_grid, rx->adc_result[INV_ADC_ID_VGRID]);
     ctl_step_adc_channel(&adc_i_ac, rx->adc_result[INV_ADC_ID_IAC]);
-    ctl_update_adc_debug_mirrors();
 }
 
 // Output Callback for PIL Simulation

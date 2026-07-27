@@ -95,12 +95,12 @@ extern "C"
 /**
  * @brief Rated and nominal DC-bus voltage.
  */
-#define CTRL_DCBUS_VOLTAGE (72.0f)
+#define CTRL_DCBUS_VOLTAGE (60.0f)
 
 /**
- * @brief Nominal point inside the required 29 V to 43 V AC input range.
+ * @brief Nominal grid/load RMS voltage.
  */
-#define CTRL_GRID_VOLTAGE_RMS (36.0f)
+#define CTRL_GRID_VOLTAGE_RMS (24.0f)
 
 /**
  * @brief Rated RMS AC current.
@@ -108,9 +108,9 @@ extern "C"
 #define CTRL_RATED_CURRENT_RMS (10.0f)
 
 /**
- * @brief Peak-voltage PU base corresponding to 43 Vrms.
+ * @brief Peak voltage PU base.
  */
-#define CTRL_VOLTAGE_BASE (60.8112f)
+#define CTRL_VOLTAGE_BASE (34.0f)
 
 /**
  * @brief Peak current PU base.
@@ -138,9 +138,9 @@ extern "C"
 #define SINV_FILTER_CAP_ESR_OHM (0.10f)
 
 /**
- * @brief External DC-link capacitance sized for less than 2 percent 100 Hz ripple at 120 W and 72 V.
+ * @brief DC-link capacitance.
  */
-#define SINV_DC_CAPACITANCE_F (4700e-6f)
+#define SINV_DC_CAPACITANCE_F (2200e-6f)
 
 /**
  * @brief Resistive load for levels 1 and 2.
@@ -148,9 +148,9 @@ extern "C"
 #define SINV_RLOAD_OHM (12.0f)
 
 /**
- * @brief DC-side load for level 5. At 72 V this draws 120 W.
+ * @brief DC-side load for level 5. At 60 V this draws 120 W, within the configured converter current rating.
  */
-#define SINV_RECTIFIER_RLOAD_OHM (43.2f)
+#define SINV_RECTIFIER_RLOAD_OHM (30.0f)
 
 /**
  * @brief AC voltage sensor sensitivity in V/V.
@@ -173,9 +173,9 @@ extern "C"
 #define CTRL_AC_CURRENT_BIAS (1.65f)
 
 /**
- * @brief DC bus sensor sensitivity; 3.3 V full scale corresponds to 110 V.
+ * @brief DC bus voltage sensor sensitivity in V/V.
  */
-#define CTRL_DC_VOLTAGE_SENSITIVITY (0.030f)
+#define CTRL_DC_VOLTAGE_SENSITIVITY (0.040f)
 
 /**
  * @brief DC bus voltage ADC bias.
@@ -198,9 +198,9 @@ extern "C"
 #define CTRL_PROT_VCTRL_MAX_PU (1.5f)
 
 /**
- * @brief Minimum precharged DC bus accepted before active boost takeover.
+ * @brief Minimum precharged DC bus accepted by startup.
  */
-#define CTRL_DCBUS_READY_MIN (35.0f)
+#define CTRL_DCBUS_READY_MIN (25.0f)
 
 /**
  * @brief Maximum DC bus accepted by startup.
