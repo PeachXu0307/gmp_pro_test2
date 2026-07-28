@@ -81,6 +81,7 @@ void ctl_init(void)
     rc_init.err_threshold = SINV_FDRC_FREEZE_ERROR_PU;
 
     ctl_auto_tuning_sinv_rc(&rc_init);
+    rc_init.kp_tuned = 0.0666331798f;
     ctl_init_sinv_rc_core(&rc_core, &rc_init, fdrc_buffer, FDRC_ARRAY_SIZE);
 
     // attach SIHV RC module to ADC peripheral

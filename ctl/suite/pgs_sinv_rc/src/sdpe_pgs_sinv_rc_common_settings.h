@@ -158,7 +158,7 @@ extern "C"
 /**
  * @brief DC-bus outer-loop proportional gain.
  */
-#define SINV_DC_BUS_LOOP_KP (0.8f)
+#define SINV_DC_BUS_LOOP_KP (0.08f)
 
 /**
  * @brief DC-bus outer-loop integral gain per second.

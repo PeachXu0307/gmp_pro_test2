@@ -273,7 +273,7 @@ extern "C"
 /**
  * @brief Single-phase PLL proportional gain.
  */
-#define CTRL_PLL_KP (10.0f)
+#define CTRL_PLL_KP (0.8f)
 
 /**
  * @brief Single-phase PLL integral time constant in seconds.
