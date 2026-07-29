@@ -119,7 +119,7 @@ extern "C"
  * @brief Gate-driver enable GPIO.
  *        Options: IRIS_GPIO1, IRIS_GPIO2, IRIS_GPIO3, IRIS_GPIO4, IRIS_GPIO5, IRIS_GPIO6
  */
-#define PWM_ENABLE_PORT IRIS_GPIO1
+#define PWM_ENABLE_PORT IRIS_GPIO2
 
 /**
  * @brief Gate-driver reset GPIO.

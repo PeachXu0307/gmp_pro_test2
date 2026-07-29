@@ -44,7 +44,7 @@ volatile fast_gt flag_enable_adc_calibrator = 0;
 
 // User commands
 ctrl_gt g_p_ref_user = float2ctrl(0.0f);
-ctrl_gt g_q_ref_user = float2ctrl(0.0f);
+ctrl_gt g_q_ref_user = float2ctrl(0.0000005f);
 ctrl_gt g_vbus_ref_user = float2ctrl(0.5f);
 
 ctrl_gt openloop_v_ref = float2ctrl(1.0f);

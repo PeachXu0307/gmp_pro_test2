@@ -144,7 +144,7 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
             ctl_step_sinv_ref_gen_pq(&ref_gen,
                             ctl_step_sinv_dc_bus_loop(&outer_loop, g_vbus_ref_user,
                                 adc_v_bus.control_port.value, float2ctrl(-1.0f)),
-                            float2ctrl(0.0f),float2ctrl(0.5f) , &pll.phasor);
+                                g_q_ref_user, float2ctrl(0.5f), &pll.phasor);
 
 #endif
         }
