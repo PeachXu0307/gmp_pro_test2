@@ -104,7 +104,7 @@ extern "C"
 /**
  * @brief Grid-current ADC low-pass cutoff frequency in hertz.
  */
-#define GFL_CURRENT_ADC_FILTER_FC_HZ (800.0f)
+#define GFL_CURRENT_ADC_FILTER_FC_HZ (1500.0f)
 
 /**
  * @brief Level-5 positive-sequence voltage-forming d-axis proportional gain from Vd error PU to Id command PU.

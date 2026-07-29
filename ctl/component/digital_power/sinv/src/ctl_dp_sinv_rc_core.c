@@ -68,6 +68,15 @@ void ctl_init_sinv_rc_core(ctl_sinv_rc_core_t* core, const ctl_sinv_rc_init_t* i
     ctl_init_qpr_controller(&core->qpr_ctrl, float2ctrl(init->kp_tuned), float2ctrl(init->kr_tuned),
                             float2ctrl(init->freq_grid), float2ctrl(init->qpr_wi), float2ctrl(init->fs));
 
+    ctl_init_qpr_controller_prewarped(
+    &core->qpr_h3,
+    0.0f,                         // 三次谐波支路不要再叠加 Kp
+    init->kr_tuned * 0.3f,         // 初值建议 0.2~0.5 倍基波 Kr
+    init->freq_grid * 3.0f,        // 50Hz 系统即 150Hz
+    init->qpr_wi,                  // 可先沿用基波带宽
+    init->fs);
+
+
     // 2. Init FDRC (Memory Buffer Injected here)
     ctl_init_fdrc(&core->fdrc_ctrl, rc_buffer, rc_buf_capacity, init->fs, init->fdrc_min_freq, init->fdrc_q_fc,
                   init->fdrc_gain, (int32_t)init->fdrc_lead_steps);

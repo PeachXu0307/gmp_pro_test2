@@ -92,6 +92,7 @@ typedef struct _tag_sinv_rc_core_t
     ctrl_gt error_lpf_abs; //!< Filtered absolute error for transient detection.
 
     ctrl_gt u_qpr;  //!< QPR controller output.
+    ctrl_gt u_qpr_h3;
     ctrl_gt u_fdrc; //!< FDRC controller output.
     ctrl_gt u_ff;   //!< Grid Feedforward output.
 
@@ -100,6 +101,8 @@ typedef struct _tag_sinv_rc_core_t
 
     // --- Controller Entities ---
     ctl_qpr_t qpr_ctrl;           //!< QPR controller instance.
+    ctl_qpr_t qpr_h3;
+    fast_gt flag_enable_h3_qpr;
     ctl_fdrc_t fdrc_ctrl;         //!< Repetitive controller instance.
     ctrl_lead_t vgrid_lead;       //!< Lead compensator for grid feedforward.
     ctl_filter_IIR1_t err_filter; //!< LPF for transient detection (absolute error).
@@ -155,6 +158,7 @@ GMP_STATIC_INLINE void ctl_attach_sinv_rc(ctl_sinv_rc_core_t* core, adc_ift* _u_
 GMP_STATIC_INLINE void ctl_clear_sinv_rc_core(ctl_sinv_rc_core_t* core)
 {
     ctl_clear_qpr_controller(&core->qpr_ctrl);
+    ctl_clear_qpr_controller(&core->qpr_h3);
     ctl_clear_fdrc(&core->fdrc_ctrl);
     ctl_clear_lead(&core->vgrid_lead);
     ctl_clear_filter_iir1(&core->err_filter);
@@ -164,6 +168,7 @@ GMP_STATIC_INLINE void ctl_clear_sinv_rc_core(ctl_sinv_rc_core_t* core)
     core->current_error = float2ctrl(0.0f);
     core->error_lpf_abs = float2ctrl(0.0f);
     core->u_qpr = float2ctrl(0.0f);
+    core->u_qpr_h3 = float2ctrl(0.0f);
     core->u_fdrc = float2ctrl(0.0f);
     core->u_ff = float2ctrl(0.0f);
     core->v_out_unsat = float2ctrl(0.0f);
@@ -192,6 +197,7 @@ GMP_STATIC_INLINE ctrl_gt ctl_step_sinv_rc_core(ctl_sinv_rc_core_t* core, ctrl_g
         core->i_ref = float2ctrl(0.0f);
         core->current_error = float2ctrl(0.0f);
         core->u_qpr = float2ctrl(0.0f);
+        core->u_qpr_h3 = float2ctrl(0.0f);
         core->u_fdrc = float2ctrl(0.0f);
         core->u_ff = float2ctrl(0.0f);
         core->v_out_unsat = float2ctrl(0.0f);
@@ -210,6 +216,12 @@ GMP_STATIC_INLINE ctrl_gt ctl_step_sinv_rc_core(ctl_sinv_rc_core_t* core, ctrl_g
 
     // 3. Fundamental Tracking (QPR)
     core->u_qpr = ctl_step_qpr_controller(&core->qpr_ctrl, core->current_error);
+    if (core->flag_enable_h3_qpr)
+    {
+        core->u_qpr_h3 = ctl_step_qpr_controller(&core->qpr_h3, core->current_error);
+    }
+
+
 
     // 4. Harmonic Rejection (Smart FDRC)
     core->u_fdrc = float2ctrl(0.0f);
@@ -241,7 +253,7 @@ GMP_STATIC_INLINE ctrl_gt ctl_step_sinv_rc_core(ctl_sinv_rc_core_t* core, ctrl_g
     }
 
     // 6. Synthesis
-    ctrl_gt v_ref_total = core->u_qpr + core->u_fdrc + core->u_ff;
+    ctrl_gt v_ref_total = core->u_qpr + core->u_qpr_h3 + core->u_fdrc + core->u_ff;
 
     // 7. Universal DC Bus Voltage Compensation & Saturation
     ctrl_gt v_bus_safe = (core->v_bus_fdbk->value > float2ctrl(0.1f)) ? core->v_bus_fdbk->value : float2ctrl(0.1f);

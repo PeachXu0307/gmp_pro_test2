@@ -69,6 +69,9 @@ GMP_STATIC_INLINE void ctl_output_callback(void)
     DAC_setShadowValue(IRIS_DACA_BASE, (uint16_t)(pll.phasor.dat[phasor_sin]* 2048.0f + 2048.0f));
     DAC_setShadowValue(IRIS_DACB_BASE, (uint16_t)(adc_v_grid.control_port.value * 2048.0f + 2048.0f));
 
+//    DAC_setShadowValue(IRIS_DACA_BASE, (uint16_t)(adc_v_bus.control_port.value* 2048.0f + 2048.0f));
+//    DAC_setShadowValue(IRIS_DACB_BASE, (uint16_t)(adc_i_ac.control_port.value * 2048.0f + 2048.0f));
+
 
 #endif // BUILD_LEVEL
 }
