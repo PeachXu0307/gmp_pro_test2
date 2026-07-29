@@ -65,6 +65,11 @@ extern volatile fast_gt flag_enable_adc_calibrator;
 extern volatile fast_gt index_adc_calibrator;
 extern uint32_t vac_loop_tick;
 
+extern inv_dq_hcm_t dq_hcm;
+extern inv_dq_hcm_init_t dq_hcm_init;
+extern ctl_vector2_t dq_hcm_zero_ref;
+extern ctl_vector2_t idq_base_ref;
+
 // User commands
 
 //=================================================================================================
@@ -94,12 +99,72 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
     else
     {
         // run controller body
-        ctl_step_gfl_inv_ctrl(&inv_ctrl);
-        ctl_step_neg_inv_ctrl(&neg_current_ctrl);
+//
 
-#if BUILD_LEVEL == 5
-        // Run the Level-5 voltage-forming outer loop at its own lower rate.
-        // The current loop keeps consuming the most recent current reference.
+//        (original)
+//
+//        ctl_step_gfl_inv_ctrl(&inv_ctrl);
+//        ctl_step_neg_inv_ctrl(&neg_current_ctrl);
+//
+//#if BUILD_LEVEL == 5
+//        // Run the Level-5 voltage-forming outer loop at its own lower rate.
+//        // The current loop keeps consuming the most recent current reference.
+//        ++vac_loop_tick;
+//        if (vac_loop_tick >= GFL_VAC_LOOP_DIVIDER)
+//        {
+//            vac_loop_tick = 0;
+//            ctl_step_gfl_vac(&vac_ctrl);
+//
+//            if (vac_ctrl.flag_enable && inv_ctrl.flag_enable_system)
+//            {
+//                ctl_set_gfl_inv_current(&inv_ctrl, vac_ctrl.idq_set_out.dat[phase_d],
+//                                        vac_ctrl.idq_set_out.dat[phase_q]);
+//            }
+//            else if (vac_ctrl.flag_enable)
+//            {
+//                ctl_set_gfl_inv_current(&inv_ctrl, 0, 0);
+//            }
+//        }
+//#endif
+//
+//
+//
+//        (modified)
+//
+//        ctl_step_gfl_inv_ctrl(&inv_ctrl);
+//        ctl_step_dq_hcm(&dq_hcm);
+//        ctl_step_neg_inv_ctrl(&neg_current_ctrl);
+//
+//        #if BUILD_LEVEL == 5
+//        ++vac_loop_tick;
+//        if (vac_loop_tick >= GFL_VAC_LOOP_DIVIDER)
+//        {
+//            vac_loop_tick = 0;
+//            ctl_step_gfl_vac(&vac_ctrl);
+//            idq_base_ref = vac_ctrl.idq_set_out;
+//
+//            if (vac_ctrl.flag_enable && inv_ctrl.flag_enable_system)
+//            {
+//                ctl_set_gfl_inv_current(&inv_ctrl,
+//                    vac_ctrl.idq_set_out.dat[phase_d] + dq_hcm.dq_out.dat[phase_d],
+//                    vac_ctrl.idq_set_out.dat[phase_q] + dq_hcm.dq_out.dat[phase_q]);
+//            }
+//            else if (vac_ctrl.flag_enable)
+//            {
+//                ctl_set_gfl_inv_current(&inv_ctrl, 0, 0);
+//            }
+//        }
+//        #endif
+//
+//
+//
+//      (suggested)
+//
+        ctl_step_gfl_inv_ctrl(&inv_ctrl);
+
+        ctl_step_dq_hcm(&dq_hcm);
+
+        #if BUILD_LEVEL == 5
         ++vac_loop_tick;
         if (vac_loop_tick >= GFL_VAC_LOOP_DIVIDER)
         {
@@ -108,15 +173,24 @@ GMP_STATIC_INLINE void ctl_dispatch(void)
 
             if (vac_ctrl.flag_enable && inv_ctrl.flag_enable_system)
             {
-                ctl_set_gfl_inv_current(&inv_ctrl, vac_ctrl.idq_set_out.dat[phase_d],
-                                        vac_ctrl.idq_set_out.dat[phase_q]);
+                idq_base_ref.dat[phase_d] = vac_ctrl.idq_set_out.dat[phase_d];
+                idq_base_ref.dat[phase_q] = vac_ctrl.idq_set_out.dat[phase_q];
             }
-            else if (vac_ctrl.flag_enable)
+            else
             {
-                ctl_set_gfl_inv_current(&inv_ctrl, 0, 0);
+                ctl_vector2_clear(&idq_base_ref);
             }
         }
-#endif
+
+        ctl_set_gfl_inv_current(&inv_ctrl,
+            idq_base_ref.dat[phase_d] + dq_hcm.dq_out.dat[phase_d],
+            idq_base_ref.dat[phase_q] + dq_hcm.dq_out.dat[phase_q]);
+        #endif
+
+        ctl_step_neg_inv_ctrl(&neg_current_ctrl);
+
+
+
 
         // mix all output
         spwm.vab0_out.dat[phase_A] = inv_ctrl.vab0_out.dat[phase_A] + neg_current_ctrl.vab_out.dat[phase_A];

@@ -36,6 +36,11 @@ inv_neg_ctrl_t neg_current_ctrl;
 gfl_inv_ctrl_init_t gfl_init;
 gfl_inv_ctrl_t inv_ctrl;
 
+inv_dq_hcm_t dq_hcm;
+inv_dq_hcm_init_t dq_hcm_init;
+ctl_vector2_t dq_hcm_zero_ref;
+ctl_vector2_t idq_base_ref;
+
 // Input channel
 
 // Output channel: SPWM modulator / SVPWM modulator / NPC modulator
@@ -125,6 +130,25 @@ void ctl_init()
 
 
     ctl_attach_neg_inv_to_gfl(&neg_current_ctrl, &inv_ctrl);
+
+    ctl_vector2_clear(&dq_hcm_zero_ref);
+    ctl_vector2_clear(&idq_base_ref);
+
+    dq_hcm_init.fs = CONTROLLER_FREQUENCY;
+    dq_hcm_init.freq_base = GFL_GRID_FREQUENCY_HZ;
+
+    dq_hcm_init.kr_6th = 0.005f;
+    dq_hcm_init.bw_6th = 3.0f;
+    dq_hcm_init.kr_12th = 0.002f;
+    dq_hcm_init.bw_12th = 3.0f;
+
+    dq_hcm_init.out_limit = 0.03f;
+
+    ctl_init_dq_hcm(&dq_hcm, &dq_hcm_init);
+    ctl_attach_dq_hcm(&dq_hcm, &inv_ctrl.idq, &dq_hcm_zero_ref);
+
+    dq_hcm.flag_enable_6th = 1;
+    dq_hcm.flag_enable_12th = 1;
 
     //
     // init SPWM modulator
@@ -271,6 +295,8 @@ void ctl_disable_pwm()
     ctl_clear_gfl_inv(&inv_ctrl);
     ctl_clear_neg_inv(&neg_current_ctrl);
     ctl_clear_gfl_vac(&vac_ctrl);
+    ctl_clear_dq_hcm(&dq_hcm);
+    ctl_vector2_clear(&idq_base_ref);
     vac_loop_tick = 0;
 }
 

@@ -216,11 +216,7 @@ GMP_STATIC_INLINE ctrl_gt ctl_step_sinv_rc_core(ctl_sinv_rc_core_t* core, ctrl_g
 
     // 3. Fundamental Tracking (QPR)
     core->u_qpr = ctl_step_qpr_controller(&core->qpr_ctrl, core->current_error);
-    if (core->flag_enable_h3_qpr)
-    {
-        core->u_qpr_h3 = ctl_step_qpr_controller(&core->qpr_h3, core->current_error);
-    }
-
+    core->u_qpr_h3 = ctl_step_qpr_controller(&core->qpr_h3, core->current_error);
 
 
     // 4. Harmonic Rejection (Smart FDRC)
