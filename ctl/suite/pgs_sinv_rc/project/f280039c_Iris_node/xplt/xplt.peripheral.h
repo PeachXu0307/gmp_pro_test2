@@ -26,6 +26,12 @@ extern "C"
 
 #include <core/dev/datalink.h>
 
+#include <ctl/component/intrinsic/discrete/discrete_filter.h>
+extern ctl_filter_IIR1_t adc_i_ac_lpf;
+extern ctl_filter_IIR1_t adc_v_grid_lpf;
+extern ctl_filter_IIR1_t adc_v_bus_lpf;
+#define SINV_ADC_SAMPLE_LPF_FC_HZ (2000.0f)
+
 //=================================================================================================
 // definitions of peripheral
 

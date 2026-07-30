@@ -26,6 +26,10 @@ adc_channel_t adc_i_ac;
 // DC Bus Voltage Feedback
 adc_channel_t adc_v_bus;
 
+ctl_filter_IIR1_t adc_i_ac_lpf;
+ctl_filter_IIR1_t adc_v_grid_lpf;
+ctl_filter_IIR1_t adc_v_bus_lpf;
+
 // dlog DSA objects
 //basic_trigger_t trigger;
 
@@ -84,6 +88,10 @@ void setup_peripheral(void)
                          ctl_bias_calc_via_Vref_Vbias(CTRL_ADC_VOLTAGE_REF, CTRL_DC_VOLTAGE_BIAS),
                          // ADC resolution, IQN
                          12, 24);
+
+    ctl_init_filter_iir1_lpf(&adc_i_ac_lpf, CONTROLLER_FREQUENCY, SINV_ADC_SAMPLE_LPF_FC_HZ);
+    ctl_init_filter_iir1_lpf(&adc_v_grid_lpf, CONTROLLER_FREQUENCY, SINV_ADC_SAMPLE_LPF_FC_HZ);
+    ctl_init_filter_iir1_lpf(&adc_v_bus_lpf, CONTROLLER_FREQUENCY, SINV_ADC_SAMPLE_LPF_FC_HZ);
 
     // ---------------------------------------------------------
     // 4. Attach ADC Ports to the RC Core (Zero-Copy Binding)

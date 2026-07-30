@@ -35,6 +35,15 @@ GMP_STATIC_INLINE void ctl_input_callback(void)
     ctl_step_adc_channel(&adc_v_grid, ADC_readResult(INV_VAC_RESULT_BASE, INV_VAC));
     ctl_step_adc_channel(&adc_i_ac, ADC_readResult(INV_IAC_RESULT_BASE, INV_IAC));
     ctl_step_adc_channel(&adc_v_bus, ADC_readResult(INV_VBUS_RESULT_BASE, INV_VBUS));
+
+    adc_v_grid.control_port.value =
+        ctl_step_filter_iir1(&adc_v_grid_lpf, adc_v_grid.control_port.value);
+
+    adc_i_ac.control_port.value =
+        ctl_step_filter_iir1(&adc_i_ac_lpf, adc_i_ac.control_port.value);
+
+    adc_v_bus.control_port.value =
+        ctl_step_filter_iir1(&adc_v_bus_lpf, adc_v_bus.control_port.value);
 }
 
 // Output Callback

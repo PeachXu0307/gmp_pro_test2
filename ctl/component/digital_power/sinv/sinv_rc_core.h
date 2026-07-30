@@ -113,6 +113,11 @@ typedef struct _tag_sinv_rc_core_t
     ctl_qpr_t qpr_h11;
     ctl_qpr_t qpr_h13;
     fast_gt flag_enable_h3_qpr;
+    fast_gt flag_enable_h5_qpr;
+    fast_gt flag_enable_h7_qpr;
+    fast_gt flag_enable_h9_qpr;
+    fast_gt flag_enable_h11_qpr;
+    fast_gt flag_enable_h13_qpr;
     ctl_fdrc_t fdrc_ctrl;         //!< Repetitive controller instance.
     ctrl_lead_t vgrid_lead;       //!< Lead compensator for grid feedforward.
     ctl_filter_IIR1_t err_filter; //!< LPF for transient detection (absolute error).
@@ -241,12 +246,36 @@ GMP_STATIC_INLINE ctrl_gt ctl_step_sinv_rc_core(ctl_sinv_rc_core_t* core, ctrl_g
 
     // 3. Fundamental Tracking (QPR)
     core->u_qpr = ctl_step_qpr_controller(&core->qpr_ctrl, core->current_error);
+
+    if (core->flag_enable_h3_qpr)
+    {   
     core->u_qpr_h3 = ctl_step_qpr_controller(&core->qpr_h3, core->current_error);
+    }
+
+    if (core->flag_enable_h5_qpr)
+    { 
     core->u_qpr_h5 = ctl_step_qpr_controller(&core->qpr_h5, core->current_error);
+    }
+
+    if (core->flag_enable_h7_qpr)
+    { 
     core->u_qpr_h7 = ctl_step_qpr_controller(&core->qpr_h7, core->current_error);
+    }
+
+    if (core->flag_enable_h9_qpr)
+    { 
     core->u_qpr_h9 = ctl_step_qpr_controller(&core->qpr_h9, core->current_error);
+    }
+
+    if (core->flag_enable_h11_qpr)
+    { 
     core->u_qpr_h11 = ctl_step_qpr_controller(&core->qpr_h11, core->current_error);
+    }
+
+    if (core->flag_enable_h13_qpr)
+    { 
     core->u_qpr_h13 = ctl_step_qpr_controller(&core->qpr_h13, core->current_error);
+    }
 
     // 4. Harmonic Rejection (Smart FDRC)
     core->u_fdrc = float2ctrl(0.0f);
@@ -279,7 +308,7 @@ GMP_STATIC_INLINE ctrl_gt ctl_step_sinv_rc_core(ctl_sinv_rc_core_t* core, ctrl_g
 
     // 6. Synthesis
     ctrl_gt v_ref_total = core->u_qpr + core->u_qpr_h3 + core->u_qpr_h5 + core->u_qpr_h7 + core->u_qpr_h9 + core->u_qpr_h11 + core->u_qpr_h13 + core->u_fdrc + core->u_ff;
-    // ctrl_gt v_ref_total = core->u_qpr + core->u_qpr_h3 + core->u_fdrc + core->u_ff;
+    // ctrl_gt v_ref_total = core->u_qpr + core->u_fdrc + core->u_ff;
 
     // 7. Universal DC Bus Voltage Compensation & Saturation
     ctrl_gt v_bus_safe = (core->v_bus_fdbk->value > float2ctrl(0.1f)) ? core->v_bus_fdbk->value : float2ctrl(0.1f);
