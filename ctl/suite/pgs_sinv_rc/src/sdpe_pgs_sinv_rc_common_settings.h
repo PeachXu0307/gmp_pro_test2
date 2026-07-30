@@ -202,7 +202,7 @@ extern "C"
 /**
  * @brief BUILD_LEVEL 5 physical DC bus voltage target.
  */
-#define SINV_DC_BUS_REF_V (64.0f)
+#define SINV_DC_BUS_REF_V (48.0f)
 
 /**
  * @brief Minimum operation-enabled transition delay.

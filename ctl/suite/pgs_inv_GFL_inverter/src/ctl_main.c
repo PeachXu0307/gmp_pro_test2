@@ -77,7 +77,7 @@ static void ctl_config_level5_voltage_forming(void)
     ctl_enable_neg_current_inv(&neg_current_ctrl);
 
     inv_ctrl.flag_enable_decouple = 1;
-    inv_ctrl.flag_enable_active_damping = 0;
+    inv_ctrl.flag_enable_active_damping = 1;
     inv_ctrl.flag_enable_lead_compensator = 1;
     ctl_enable_gfl_vac_ctrl(&vac_ctrl);
 #endif

@@ -70,11 +70,52 @@ void ctl_init_sinv_rc_core(ctl_sinv_rc_core_t* core, const ctl_sinv_rc_init_t* i
 
     ctl_init_qpr_controller_prewarped(
     &core->qpr_h3,
-    0.0f,                         // 三次谐波支路不要再叠加 Kp
-    init->kr_tuned * 0.3f,         // 初值建议 0.2~0.5 倍基波 Kr
-    init->freq_grid * 3.0f,        // 50Hz 系统即 150Hz
-    init->qpr_wi,                  // 可先沿用基波带宽
+    0.0f,                         // 涓夋璋愭尝鏀矾涓嶈鍐嶅彔鍔� Kp
+    init->kr_tuned * 0.2f,         // 鍒濆�煎缓璁� 0.2~0.5 鍊嶅熀娉� Kr
+    init->freq_grid * 3.0f,        // 50Hz 绯荤粺鍗� 150Hz
+    init->qpr_wi,                  // 鍙厛娌跨敤鍩烘尝甯﹀
     init->fs);
+
+    ctl_init_qpr_controller_prewarped(
+    &core->qpr_h5,
+    0.0f,                         // 涓夋璋愭尝鏀矾涓嶈鍐嶅彔鍔� Kp
+    9.6f,         // 鍒濆�煎缓璁� 0.2~0.5 鍊嶅熀娉� Kr
+    init->freq_grid * 5.0f,        // 50Hz 绯荤粺鍗� 150Hz
+    5.0f,                  // 鍙厛娌跨敤鍩烘尝甯﹀
+    init->fs);
+    
+    ctl_init_qpr_controller_prewarped(
+    &core->qpr_h7,
+    0.0f,                         // 涓夋璋愭尝鏀矾涓嶈鍐嶅彔鍔� Kp
+    init->kr_tuned * 0.3f,         // 鍒濆�煎缓璁� 0.2~0.5 鍊嶅熀娉� Kr
+    init->freq_grid * 7.0f,        // 50Hz 绯荤粺鍗� 150Hz
+    init->qpr_wi,                   // 鍙厛娌跨敤鍩烘尝甯﹀
+    init->fs);
+
+    ctl_init_qpr_controller_prewarped(
+    &core->qpr_h9,
+    0.0f,                         // 涓夋璋愭尝鏀矾涓嶈鍐嶅彔鍔� Kp
+    6.0f,         // 鍒濆�煎缓璁� 0.2~0.5 鍊嶅熀娉� Kr
+    init->freq_grid * 9.0f,        // 50Hz 绯荤粺鍗� 150Hz
+    4.0f,                  // 鍙厛娌跨敤鍩烘尝甯﹀
+    init->fs);
+
+    ctl_init_qpr_controller_prewarped(
+    &core->qpr_h11,
+    0.0f,                         // 涓夋璋愭尝鏀矾涓嶈鍐嶅彔鍔� Kp
+    0.005f,         // 鍒濆�煎缓璁� 0.2~0.5 鍊嶅熀娉� Kr
+    init->freq_grid * 11.0f,        // 50Hz 绯荤粺鍗� 150Hz
+    3.0f,                  // 鍙厛娌跨敤鍩烘尝甯﹀
+    init->fs);
+
+    ctl_init_qpr_controller_prewarped(
+    &core->qpr_h13,
+    0.0f,                         // 涓夋璋愭尝鏀矾涓嶈鍐嶅彔鍔� Kp
+    0.003f,         // 鍒濆�煎缓璁� 0.2~0.5 鍊嶅熀娉� Kr
+    init->freq_grid * 13.0f,        // 50Hz 绯荤粺鍗� 150Hz
+    2.0f,                  // 鍙厛娌跨敤鍩烘尝甯﹀
+    init->fs);
+
 
 
     // 2. Init FDRC (Memory Buffer Injected here)

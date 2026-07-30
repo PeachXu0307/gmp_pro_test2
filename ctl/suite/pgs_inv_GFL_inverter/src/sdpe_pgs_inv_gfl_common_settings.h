@@ -89,7 +89,7 @@ extern "C"
 /**
  * @brief Nominal grid frequency in hertz.
  */
-#define GFL_GRID_FREQUENCY_HZ (50.0f)
+#define GFL_GRID_FREQUENCY_HZ (60.0f)
 
 /**
  * @brief Level-5 voltage-forming AC-voltage outer-loop execution frequency in hertz.
