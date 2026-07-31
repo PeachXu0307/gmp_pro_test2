@@ -12,6 +12,7 @@
 #include "ctl_main.h" // Includes SINV modules, ADC structures, and ctrl_settings.h
 #include "user_main.h"
 #include <ctl/component/dsa/dsa_trigger.h>
+#include <core/dev/display/ht16k33.h>
 #include <xplt.peripheral.h>
 
 //=================================================================================================
@@ -40,6 +41,28 @@ uint32_t abcdef;
 
 // GPIO port
 extern gpio_halt user_led;
+iic_halt iic_bus;
+ht16k33_dev_t ht16k33;
+
+#define SINV_UI_LED8_GPIO             61U
+#define SINV_UI_LED7_GPIO             59U
+#define SINV_UI_LED_ACTIVE_LEVEL      0U
+#define SINV_UI_LED_INACTIVE_LEVEL    1U
+
+static void sinv_init_i2c(void)
+{
+    I2C_disableModule(I2CA_BASE);
+
+    I2C_initController(I2CA_BASE, DEVICE_SYSCLK_FREQ, 400000, I2C_DUTYCYCLE_33);
+    I2C_setBitCount(I2CA_BASE, I2C_BITCOUNT_8);
+    I2C_setTargetAddress(I2CA_BASE, HT16K33_DEFAULT_DEV_ADDR);
+    I2C_setEmulationMode(I2CA_BASE, I2C_EMULATION_FREE_RUN);
+
+    I2C_enableInterrupt(I2CA_BASE, I2C_INT_STOP_CONDITION | I2C_INT_REG_ACCESS_RDY);
+    I2C_enableFIFO(I2CA_BASE);
+    I2C_clearInterruptStatus(I2CA_BASE, I2C_INT_RXFF | I2C_INT_TXFF);
+    I2C_enableModule(I2CA_BASE);
+}
 
 //=================================================================================================
 // Peripheral Setup Function
@@ -55,6 +78,18 @@ void setup_peripheral(void)
     asm(" RPT #255 || NOP");
 
     user_led = SYSTEM_LED;
+
+    GPIO_setPadConfig(IRIS_IIC_I2CSDA_GPIO, GPIO_PIN_TYPE_PULLUP);
+    GPIO_setQualificationMode(IRIS_IIC_I2CSDA_GPIO, GPIO_QUAL_ASYNC);
+    GPIO_setPadConfig(IRIS_IIC_I2CSCL_GPIO, GPIO_PIN_TYPE_PULLUP);
+    GPIO_setQualificationMode(IRIS_IIC_I2CSCL_GPIO, GPIO_QUAL_ASYNC);
+    sinv_init_i2c();
+    iic_bus = I2CA_BASE;
+
+    GPIO_setDirectionMode(SINV_UI_LED8_GPIO, GPIO_DIR_MODE_OUT);
+    GPIO_setDirectionMode(SINV_UI_LED7_GPIO, GPIO_DIR_MODE_OUT);
+    GPIO_WritePin(SINV_UI_LED8_GPIO, SINV_UI_LED_INACTIVE_LEVEL);
+    GPIO_WritePin(SINV_UI_LED7_GPIO, SINV_UI_LED_INACTIVE_LEVEL);
 
     // ---------------------------------------------------------
     // 1. Initialize AC Grid Voltage ADC Channel

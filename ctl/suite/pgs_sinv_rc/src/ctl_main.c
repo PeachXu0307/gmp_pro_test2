@@ -271,6 +271,11 @@ fast_gt ctl_check_pll_locked(void)
 #endif
 }
 
+fast_gt ctl_exec_rotor_alignment(void)
+{
+    return 1;
+}
+
 fast_gt ctl_exec_dc_voltage_ready(void)
 {
     ctrl_gt v_bus = adc_v_bus.control_port.value;

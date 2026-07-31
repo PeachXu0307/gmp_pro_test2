@@ -46,9 +46,24 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/user_main.c</locationURI>
 		</link>
 		<link>
+			<name>user/sinv_ui.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/sinv_ui.c</locationURI>
+		</link>
+		<link>
 			<name>user/user_main.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/user_main.h</locationURI>
+		</link>
+		<link>
+			<name>user/oled_driver.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/csp/c28x_syscfg/iris_280039c_board/oled_driver/oled_driver.c</locationURI>
+		</link>
+		<link>
+			<name>gmp_src/ht16k33.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/core/dev/display/ht16k33.c</locationURI>
 		</link>
 		<link>
 			<name>gmp_src/ctl_cia402_callback_fn.c</name>
