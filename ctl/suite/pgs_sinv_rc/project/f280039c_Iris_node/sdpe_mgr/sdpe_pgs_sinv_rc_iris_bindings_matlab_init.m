@@ -365,7 +365,7 @@ PWM_RESET_PORT = 'IRIS_GPIO3';
 
 % System status LED.
 % Options: IRIS_LED1, IRIS_LED2, LED_R, LED_G
-SYSTEM_LED = 'IRIS_LED1';
+SYSTEM_LED = 'IRIS_GPIO1';
 
 % Controller status LED.
 % Options: IRIS_LED1, IRIS_LED2, LED_R, LED_G

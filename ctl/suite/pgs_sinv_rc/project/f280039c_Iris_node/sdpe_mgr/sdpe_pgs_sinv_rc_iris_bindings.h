@@ -136,7 +136,7 @@ extern "C"
  * @brief System status LED.
  *        Options: IRIS_LED1, IRIS_LED2, LED_R, LED_G
  */
-#define SYSTEM_LED IRIS_LED1
+#define SYSTEM_LED IRIS_GPIO1
 
 /**
  * @brief Controller status LED.

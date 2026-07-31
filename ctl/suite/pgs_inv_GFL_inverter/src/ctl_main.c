@@ -105,16 +105,16 @@ void ctl_init()
     gfl_init.grid_filter_L = GFL_GRID_FILTER_INDUCTANCE_H;
     gfl_init.grid_filter_C = GFL_GRID_FILTER_CAPACITANCE_F;
 
-    ctl_auto_tuning_gfl_inv(&gfl_init);
+//    ctl_auto_tuning_gfl_inv(&gfl_init);
 
-//    gfl_init.current_loop_bw = 1000.0f;
-//    gfl_init.current_loop_zero = gfl_init.current_loop_bw / 10.0f;
+    gfl_init.current_loop_bw = 600.0f;
+    gfl_init.current_loop_zero = gfl_init.current_loop_bw / 10.0f;
 
     gfl_init.current_adc_fc = GFL_CURRENT_ADC_FILTER_FC_HZ;
     ctl_init_gfl_inv(&inv_ctrl, &gfl_init);
 
-    inv_ctrl.pid_idq[phase_d].kp = float2ctrl(1.5f);
-    inv_ctrl.pid_idq[phase_q].kp = float2ctrl(1.5f);
+    inv_ctrl.pid_idq[phase_d].kp = float2ctrl(0.02f);
+    inv_ctrl.pid_idq[phase_q].kp = float2ctrl(0.02f);
 
 
     ctl_auto_tuning_neg_inv(&gfl_neg_init, &gfl_init);

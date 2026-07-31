@@ -117,9 +117,10 @@
       "group": "Status GPIO",
       "macro": "SYSTEM_LED",
       "enabled": true,
-      "value": "IRIS_LED1",
+      "value": "IRIS_GPIO1",
       "options_preset": "",
       "options": [
+        "IRIS_GPIO1",
         "IRIS_LED1",
         "IRIS_LED2",
         "LED_R",
