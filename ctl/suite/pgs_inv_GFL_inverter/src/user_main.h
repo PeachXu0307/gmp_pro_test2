@@ -9,6 +9,7 @@
 #include <core/dev/at_device.h>
 
 #include <core/pm/function_scheduler.h>
+#include <core/dev/display/ht16k33.h>
 
 #ifndef _FILE_USER_MAIN_H_
 #define _FILE_USER_MAIN_H_
@@ -44,6 +45,10 @@ void ctl_init(void);
 void ctl_mainloop(void);
 
 gmp_task_status_t tsk_startup(gmp_task_t* tsk);
+gmp_task_status_t tsk_inv_ui_key(gmp_task_t* tsk);
+gmp_task_status_t tsk_inv_ui_display(gmp_task_t* tsk);
+
+extern ht16k33_dev_t ht16k33;
 
 #ifdef __cplusplus
 }

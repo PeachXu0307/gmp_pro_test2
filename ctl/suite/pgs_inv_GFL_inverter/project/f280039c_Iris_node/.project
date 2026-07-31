@@ -46,6 +46,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/user_main.c</locationURI>
 		</link>
 		<link>
+			<name>user/inv_ui.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/inv_ui.c</locationURI>
+		</link>
+		<link>
 			<name>user/user_main.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/user_main.h</locationURI>

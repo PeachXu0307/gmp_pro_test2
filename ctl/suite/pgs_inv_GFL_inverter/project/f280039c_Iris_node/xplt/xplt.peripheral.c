@@ -15,6 +15,7 @@
 #include <xplt.peripheral.h>
 
 #include <core/dev/datalink.h>
+#include <core/dev/display/ht16k33.h>
 
 //=================================================================================================
 // definitions of peripheral
@@ -45,6 +46,23 @@ extern gpio_halt user_led;
 
 ctrl_gt dac1;
 ctrl_gt dac2;
+iic_halt iic_bus;
+ht16k33_dev_t ht16k33;
+
+static void initI2C(void)
+{
+    I2C_disableModule(I2CA_BASE);
+
+    I2C_initController(I2CA_BASE, DEVICE_SYSCLK_FREQ, 400000, I2C_DUTYCYCLE_33);
+    I2C_setBitCount(I2CA_BASE, I2C_BITCOUNT_8);
+    I2C_setTargetAddress(I2CA_BASE, HT16K33_DEFAULT_DEV_ADDR);
+    I2C_setEmulationMode(I2CA_BASE, I2C_EMULATION_FREE_RUN);
+
+    I2C_enableInterrupt(I2CA_BASE, I2C_INT_STOP_CONDITION | I2C_INT_REG_ACCESS_RDY);
+    I2C_enableFIFO(I2CA_BASE);
+    I2C_clearInterruptStatus(I2CA_BASE, I2C_INT_RXFF | I2C_INT_TXFF);
+    I2C_enableModule(I2CA_BASE);
+}
 
 //=================================================================================================
 // peripheral setup function
@@ -61,6 +79,13 @@ void setup_peripheral(void)
     // Test print function
     gmp_base_print(TEXT_STRING("Hello World!\r\n"));
     asm(" RPT #255 || NOP");
+
+    GPIO_setPadConfig(IRIS_IIC_I2CSDA_GPIO, GPIO_PIN_TYPE_PULLUP);
+    GPIO_setQualificationMode(IRIS_IIC_I2CSDA_GPIO, GPIO_QUAL_ASYNC);
+    GPIO_setPadConfig(IRIS_IIC_I2CSCL_GPIO, GPIO_PIN_TYPE_PULLUP);
+    GPIO_setQualificationMode(IRIS_IIC_I2CSCL_GPIO, GPIO_QUAL_ASYNC);
+    initI2C();
+    iic_bus = I2CA_BASE;
 
     // inverter side ADC
     ctl_init_tri_ptr_adc_channel(
@@ -124,6 +149,8 @@ void setup_peripheral(void)
         &iabc.control_port, &vabc.control_port);
 
     user_led = SYSTEM_LED;
+    GPIO_setDirectionMode(59U, GPIO_DIR_MODE_OUT);
+    GPIO_WritePin(59U, 1U);
 }
 
 //=================================================================================================
@@ -141,14 +168,6 @@ interrupt void MainISR(void)
     // Call GMP Timer
     //
     gmp_step_system_tick();
-
-    //
-    // Blink LED
-    //
-    if (gmp_base_get_system_tick() % 1000 < 500)
-        GPIO_WritePin(SYSTEM_LED, 0);
-    else
-        GPIO_WritePin(SYSTEM_LED, 1);
 
     //
     // Clear the interrupt flag

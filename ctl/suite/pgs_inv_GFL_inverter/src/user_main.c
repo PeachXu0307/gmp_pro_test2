@@ -9,6 +9,7 @@
 #include <core/dev/mem_presp.h>
 #include <core/dev/pil_core.h>
 #include <core/dev/tunable.h>
+#include <core/dev/display/ht16k33.h>
 
 //=================================================================================================
 // Datalink protocol online Debug module
@@ -128,6 +129,7 @@ gmp_task_status_t tsk_dl_debug_device(gmp_task_t* tsk)
 
 // GPIO
 gpio_halt user_led;
+extern iic_halt iic_bus;
 
 
 gmp_task_status_t tsk_blink(gmp_task_t* tsk)
@@ -172,6 +174,8 @@ gmp_task_t tasks[] = {
     {"blink_led", tsk_blink, 1000, 0, 1, NULL},
     {"dl_online", tsk_dl_debug_device, 2, 0, 1, NULL},
     {"monitor_data", tsk_monitor, 2, 0, 1, NULL},
+    {"inv_ui_key", tsk_inv_ui_key, 10, 10, 0, (void*)&ht16k33},
+    {"inv_ui_display", tsk_inv_ui_display, 10, 15, 0, (void*)&ht16k33},
     {"startup", tsk_startup, 500, 0, 1, NULL},
 };
 
@@ -205,9 +209,14 @@ gmp_task_status_t tsk_startup(gmp_task_t* tsk)
 {
     GMP_UNUSED_VAR(tsk);
 
-    //
-    // Add necessary init code here.
-    //
+    ht16k33_init_t ht16k33_init_struct = {.brightness = 15, .blink_rate = 0, .int_enable = 0, .int_act_high = 0};
+    ec_gt ec = ht16k33_init(&ht16k33, iic_bus, HT16K33_DEFAULT_DEV_ADDR, &ht16k33_init_struct);
+
+    if (ec == GMP_EC_OK)
+    {
+        sched.task_list[3]->is_enabled = 1;
+        sched.task_list[4]->is_enabled = 1;
+    }
 
     //
     // startup process is complete, close this task

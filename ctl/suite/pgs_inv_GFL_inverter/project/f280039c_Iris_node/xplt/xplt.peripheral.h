@@ -49,6 +49,7 @@ extern ptr_adc_channel_t udc;
 extern adc_gt udc_src;
 extern ptr_adc_channel_t idc;
 extern adc_gt idc_src;
+extern iic_halt iic_bus;
 
 void flush_dl_tx_buffer(void);
 void flush_dl_rx_buffer(void);

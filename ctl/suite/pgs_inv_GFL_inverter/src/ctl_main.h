@@ -75,6 +75,11 @@ extern ctl_vector2_t idq_base_ref;
 //=================================================================================================
 // controller process
 
+void ctl_enable_pwm(void);
+void ctl_disable_pwm(void);
+fast_gt inv_ui_is_forced_output_active(void);
+void inv_ui_service_forced_output(void);
+
 // periodic callback function things.
 GMP_STATIC_INLINE void ctl_dispatch(void)
 {

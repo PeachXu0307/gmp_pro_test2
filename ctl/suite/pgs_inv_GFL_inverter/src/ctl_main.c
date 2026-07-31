@@ -83,6 +83,25 @@ static void ctl_config_level5_voltage_forming(void)
 #endif
 }
 
+static void ctl_config_gfl_active_damping_params(void)
+{
+    if (gfl_init.grid_filter_C < 1e-9f)
+    {
+        gfl_init.active_damping_resister = 0.0f;
+        gfl_init.active_damping_center_freq = 0.0f;
+        gfl_init.active_damping_filter_q = 1.0f;
+    }
+    else
+    {
+        parameter_gt lc_res_hz = 1.0f /
+            (CTL_PARAM_CONST_2PI * sqrtf(gfl_init.grid_filter_L * gfl_init.grid_filter_C));
+
+        gfl_init.active_damping_resister = 0.2f * sqrtf(gfl_init.grid_filter_L / gfl_init.grid_filter_C);
+        gfl_init.active_damping_center_freq = lc_res_hz;
+        gfl_init.active_damping_filter_q = 1.0f;
+    }
+}
+
 //=================================================================================================
 // CTL initialize routine
 
@@ -111,6 +130,7 @@ void ctl_init()
     gfl_init.current_loop_zero = gfl_init.current_loop_bw / 10.0f;
 
     gfl_init.current_adc_fc = GFL_CURRENT_ADC_FILTER_FC_HZ;
+    ctl_config_gfl_active_damping_params();
     ctl_init_gfl_inv(&inv_ctrl, &gfl_init);
 
     inv_ctrl.pid_idq[phase_d].kp = float2ctrl(0.02f);
@@ -253,7 +273,14 @@ void ctl_init()
 
 void ctl_mainloop(void)
 {
-    cia402_dispatch(&cia402_sm);
+    if (inv_ui_is_forced_output_active())
+    {
+        inv_ui_service_forced_output();
+    }
+    else
+    {
+        cia402_dispatch(&cia402_sm);
+    }
 
     return;
 }
