@@ -129,7 +129,7 @@ extern "C"
 /**
  * @brief Circular magnitude limit applied to the d/q current reference produced by the voltage-forming loop.
  */
-#define GFL_VAC_CURRENT_LIMIT_PU (0.80f)
+#define GFL_VAC_CURRENT_LIMIT_PU (1.20f)
 
 /**
  * @brief Default Level-5 positive-sequence d-axis phase-voltage reference in the internal angle frame.

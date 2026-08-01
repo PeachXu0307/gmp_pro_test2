@@ -178,7 +178,7 @@ extern "C"
  * @brief Grid-voltage sensing gain.
  */
 //#define CTRL_GRID_VOLTAGE_SENSITIVITY (HARMONIA_3PH_LC_FILTER_PH_VOLTAGE_SENSE_GAIN)
-#define CTRL_GRID_VOLTAGE_SENSITIVITY (0.012f)
+#define CTRL_GRID_VOLTAGE_SENSITIVITY (0.013329682f)
 
 /**
  * @brief Grid-voltage sensing bias.

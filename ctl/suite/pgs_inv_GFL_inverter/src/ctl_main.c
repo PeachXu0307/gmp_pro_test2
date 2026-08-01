@@ -133,8 +133,10 @@ void ctl_init()
     ctl_config_gfl_active_damping_params();
     ctl_init_gfl_inv(&inv_ctrl, &gfl_init);
 
-    inv_ctrl.pid_idq[phase_d].kp = float2ctrl(0.02f);
-    inv_ctrl.pid_idq[phase_q].kp = float2ctrl(0.02f);
+    inv_ctrl.pid_idq[phase_d].kp = float2ctrl(0.4f);
+    inv_ctrl.pid_idq[phase_q].kp = float2ctrl(0.4f);
+    inv_ctrl.pid_idq[phase_d].ki = float2ctrl(0.04f);
+    inv_ctrl.pid_idq[phase_q].ki = float2ctrl(0.04f);
 
 
     ctl_auto_tuning_neg_inv(&gfl_neg_init, &gfl_init);
@@ -184,7 +186,7 @@ void ctl_init()
     //
     // Level-5 AC-voltage outer loop
     //
-    ctl_init_gfl_vac(&vac_ctrl, 0.2f, 10.0f, 0.2f, 10.0f,
+    ctl_init_gfl_vac(&vac_ctrl, 0.2f, 20.0f, 0.2f, 20.0f,
                      GFL_VAC_CURRENT_LIMIT_PU, GFL_VAC_REF_SLEW_PU_S, GFL_VAC_LOOP_FREQUENCY_HZ);
     ctl_attach_gfl_vac_to_core(&vac_ctrl, &inv_ctrl);
     ctl_set_gfl_vac_ref(&vac_ctrl, float2ctrl(GFL_AC_VOLTAGE_D_REF_PU), float2ctrl(GFL_AC_VOLTAGE_Q_REF_PU));

@@ -145,11 +145,11 @@ GMP_STATIC_INLINE void ctl_output_callback(void)
     //    DAC_setShadowValue(IRIS_DACB_BASE, inv_ctrl.pll.v_pos_seq.dat[0] * 2048 + 2048);
     //    DAC_setShadowValue(IRIS_DACB_BASE, inv_ctrl.pll.srf_pll.theta * 2048 + 2048);
 
-//        DAC_setShadowValue(IRIS_DACA_BASE, inv_ctrl.vabc.dat[phase_A] * 2048 + 2048);
-//        DAC_setShadowValue(IRIS_DACB_BASE, inv_ctrl.vabc.dat[phase_B] * 2048 + 2048);
+        DAC_setShadowValue(IRIS_DACA_BASE, inv_ctrl.vabc.dat[phase_B] * 2048 + 2048);
+        DAC_setShadowValue(IRIS_DACB_BASE, inv_ctrl.vabc.dat[phase_A] * 2048 + 2048);
 
-        DAC_setShadowValue(IRIS_DACA_BASE, inv_ctrl.vdq.dat[phase_d] * 2048 + 2048);
-        DAC_setShadowValue(IRIS_DACB_BASE, inv_ctrl.vdq.dat[phase_q] * 2048 + 2048);
+//        DAC_setShadowValue(IRIS_DACA_BASE, inv_ctrl.vdq.dat[phase_d] * 2048 + 2048);
+//        DAC_setShadowValue(IRIS_DACB_BASE, inv_ctrl.vdq.dat[phase_q] * 2048 + 2048);
 
 
 #endif // BUILD_LEVEL

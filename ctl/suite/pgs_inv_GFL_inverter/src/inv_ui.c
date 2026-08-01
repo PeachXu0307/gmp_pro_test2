@@ -86,7 +86,12 @@ static int32_t inv_ui_digit_weight(uint8_t cursor)
 {
     static const int32_t weights[INV_UI_FREQ_DIGITS] = {100L, 10L, 1L};
 
-    return weights[cursor & INV_UI_LAST_EDIT_CURSOR];
+    if (cursor >= INV_UI_FREQ_DIGITS)
+    {
+        return 1L;
+    }
+
+    return weights[cursor];
 }
 
 static int32_t inv_ui_set_digit(int32_t value, uint8_t cursor, int8_t digit)
