@@ -275,8 +275,14 @@ void ctl_init()
 
 void ctl_mainloop(void)
 {
-    inv_ui_service_forced_output();
-    cia402_dispatch(&cia402_sm);
+    if (inv_ui_is_forced_output_active())
+    {
+        inv_ui_service_forced_output();
+    }
+    else
+    {
+        cia402_dispatch(&cia402_sm);
+    }
 
     return;
 }

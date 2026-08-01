@@ -84,7 +84,7 @@ extern "C"
 /**
  * @brief Nominal grid phase-voltage magnitude in controller per unit.
  */
-#define GFL_GRID_VOLTAGE_PU (0.3*1.414f)
+#define GFL_GRID_VOLTAGE_PU (0.4*1.414f)
 
 /**
  * @brief Nominal grid frequency in hertz.
@@ -129,7 +129,7 @@ extern "C"
 /**
  * @brief Circular magnitude limit applied to the d/q current reference produced by the voltage-forming loop.
  */
-#define GFL_VAC_CURRENT_LIMIT_PU (1.0f)
+#define GFL_VAC_CURRENT_LIMIT_PU (1.07500005f)
 
 /**
  * @brief Default Level-5 positive-sequence d-axis phase-voltage reference in the internal angle frame.

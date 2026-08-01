@@ -281,6 +281,15 @@ static void inv_ui_service_output_request(void)
 {
     cia402_sm.flag_enable_control_word = 0;
 
+    if (inv_ui_output_request)
+    {
+        inv_ui_request_output_enable();
+    }
+    else if (cia402_sm.state_word.bits.operation_enabled)
+    {
+        inv_ui_request_output_disable();
+    }
+
     g_inv_ui_output_request = inv_ui_output_request;
 }
 
@@ -291,10 +300,10 @@ fast_gt inv_ui_is_forced_output_active(void)
 
 void inv_ui_service_forced_output(void)
 {
-    cia402_sm.flag_enable_control_word = 0;
-
-    if (inv_ui_output_request && !cia402_sm.state_word.bits.operation_enabled)
+    if (inv_ui_output_request)
+    {
         inv_ui_request_output_enable();
+    }
 }
 
 static void inv_ui_enter_edit(void)

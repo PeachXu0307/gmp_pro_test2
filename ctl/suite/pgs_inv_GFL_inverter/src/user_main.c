@@ -175,7 +175,7 @@ gmp_task_t tasks[] = {
     {"dl_online", tsk_dl_debug_device, 2, 0, 1, NULL},
     {"monitor_data", tsk_monitor, 2, 0, 1, NULL},
     {"inv_ui_key", tsk_inv_ui_key, 10, 10, 0, (void*)&ht16k33},
-    {"inv_ui_display", tsk_inv_ui_display, 50, 15, 0, (void*)&ht16k33},
+    {"inv_ui_display", tsk_inv_ui_display, 10, 15, 0, (void*)&ht16k33},
     {"startup", tsk_startup, 500, 0, 1, NULL},
 };
 
